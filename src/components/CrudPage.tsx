@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, CheckCircle2, Circle, Paperclip, Download, Eye } 
 import { Panel, Section } from '../components/Section'
 import type { DatabaseRow } from '../lib/data'
 import { insertRow, updateRow, deleteRow, uploadMaterialFile, deleteMaterialFile } from '../lib/mutations'
+import { resolveLocalFileUrl, revokeIfBlob, isLocalFileRef } from '../lib/fileStore'
 
 export interface FieldDef {
   key: string
@@ -64,7 +65,7 @@ export function CrudPage({
   const [fileData, setFileData] = useState<Record<string, { name: string; file: File }>>({})
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [preview, setPreview] = useState<{ url: string; name: string; kind: 'pdf' | 'image' | 'office' } | null>(null)
+  const [preview, setPreview] = useState<{ url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' } | null>(null)
   const list = rows
 
   function resetForm() {
@@ -171,19 +172,25 @@ export function CrudPage({
     refresh()
   }
 
-  function openPreview(row: DatabaseRow) {
-    const url = String(row.file_url)
+  async function openPreview(row: DatabaseRow) {
+    const rawUrl = String(row.file_url)
     const name = row.file_name ? String(row.file_name) : 'Dokumen'
     const ext = name.split('.').pop()?.toLowerCase() ?? ''
     const isImage = /png|jpe?g|gif|webp|bmp|svg/.test(ext)
     const isOffice = /docx?|xlsx?|pptx?|odt|ods|odp|rtf|txt/.test(ext)
+    // File lokal (IndexedDB) → resolve jadi blob URL yang bisa dirender.
+    const url = await resolveLocalFileUrl(rawUrl)
     if (isImage) {
       setPreview({ url, name, kind: 'image' })
-    } else if (isOffice) {
-      // Office/dokumen teks → viewer online (tidak bisa render di browser langsung)
+    } else if (isOffice && !isLocalFileRef(rawUrl)) {
+      // Office/dokumen teks di Supabase (URL publik) → viewer online Microsoft.
       setPreview({ url, name, kind: 'office' })
+    } else if (isOffice) {
+      // Office lokal: browser tidak bisa render inline, viewer online pun tidak
+      // bisa mengakses blob lokal → tampilkan info + tombol unduh.
+      setPreview({ url, name, kind: 'office-local' })
     } else {
-      // PDF & yang tidak dikenal → preview inline
+      // PDF, file lokal, & yang tidak dikenal → preview inline (blob/pdf).
       setPreview({ url, name, kind: 'pdf' })
     }
   }
@@ -251,7 +258,7 @@ export function CrudPage({
                     {typeof row.file_url === 'string' && row.file_url && (
                       <>
                         <button
-                          onClick={() => openPreview(row)}
+                          onClick={() => void openPreview(row)}
                           className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-black/[0.03] px-2.5 text-xs font-semibold text-ink-soft transition hover:bg-black/[0.07]"
                         >
                           <Eye className="h-3.5 w-3.5" />
@@ -293,7 +300,13 @@ export function CrudPage({
       </Section>
 
       {preview && (
-        <PreviewModal preview={preview} onClose={() => setPreview(null)} />
+        <PreviewModal
+          preview={preview}
+          onClose={() => {
+            revokeIfBlob(preview.url)
+            setPreview(null)
+          }}
+        />
       )}
 
       {showForm && (
@@ -355,8 +368,10 @@ export function CrudPage({
  * bukan buka di tab baru, jadi PDF/office ke-download beneran.
  */
 async function downloadFile(url: string, fileName?: string) {
+  // File lokal (IndexedDB) → resolve ke blob URL dulu.
+  const resolved = await resolveLocalFileUrl(url)
   try {
-    const res = await fetch(url)
+    const res = await fetch(resolved)
     if (!res.ok) throw new Error('unduh gagal')
     const blob = await res.blob()
     const objectUrl = URL.createObjectURL(blob)
@@ -369,7 +384,10 @@ async function downloadFile(url: string, fileName?: string) {
     setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
   } catch {
     // fallback: buka di tab baru
-    window.open(url, '_blank', 'noopener')
+    window.open(resolved, '_blank', 'noopener')
+  } finally {
+    // revoke blob URL hasil resolve (bukan objectUrl download di atas)
+    if (resolved !== url) revokeIfBlob(resolved)
   }
 }
 
@@ -426,7 +444,7 @@ function PreviewModal({
   preview,
   onClose,
 }: {
-  preview: { url: string; name: string; kind: 'pdf' | 'image' | 'office' }
+  preview: { url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' }
   onClose: () => void
 }) {
   const officeViewer =
@@ -454,6 +472,23 @@ function PreviewModal({
               alt={preview.name}
               className="mx-auto max-h-full w-auto object-contain"
             />
+          ) : preview.kind === 'office-local' ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+              <p className="text-sm font-medium text-ink">
+                Dokumen Office ini tidak bisa dipratinjau langsung di browser.
+              </p>
+              <p className="max-w-sm text-xs text-ink-soft">
+                Pratinjau online hanya tersedia bila dokumen diunggah ke penyimpanan daring
+                (Supabase). Untuk saat ini, unduh dulu file-nya untuk membuka.
+              </p>
+              <button
+                onClick={() => void downloadFile(preview.url, preview.name)}
+                className="mt-1 inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-soft transition hover:-translate-y-0.5"
+              >
+                <Download className="h-4 w-4" />
+                Unduh dokumen
+              </button>
+            </div>
           ) : (
             <iframe
               src={officeViewer}

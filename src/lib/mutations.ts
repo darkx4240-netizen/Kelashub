@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase, type DatabaseRow } from './supabase'
 import { store, type TableName } from './store'
+import { putLocalFile, removeLocalFile } from './fileStore'
 
 export interface MutResult {
   ok: boolean
@@ -41,9 +42,14 @@ export async function deleteRow(table: TableName, id: string): Promise<MutResult
   return { ok: true }
 }
 
-/** Hapus file dari storage bucket "materials". */
+/** Hapus file dari storage bucket "materials" (Supabase) atau IndexedDB (lokal). */
 export async function deleteMaterialFile(path: string): Promise<void> {
-  if (!isSupabaseConfigured || !supabase || !path) return
+  if (!path) return
+  // Mode lokal: referensi "localfile:<id>" di IndexedDB.
+  if (!isSupabaseConfigured || !supabase) {
+    await removeLocalFile(path)
+    return
+  }
   try {
     await supabase.storage.from('materials').remove([path])
   } catch {
@@ -62,14 +68,10 @@ export async function uploadMaterialFile(
   folder = 'materials',
 ): Promise<MutResult & { url?: string; path?: string }> {
   if (!isSupabaseConfigured || !supabase) {
-    // fallback: base64 ke store lokal (tanpa internet)
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const r = new FileReader()
-      r.onload = () => resolve(String(r.result))
-      r.onerror = () => reject(new Error('gagal baca file'))
-      r.readAsDataURL(file)
-    })
-    return { ok: true, url: dataUrl, path: file.name }
+    // fallback lokal: simpan Blob ke IndexedDB (bukan base64 di localStorage,
+    // yang gampang kena quota ~5MB dan bikin data hilang saat refresh).
+    const ref = await putLocalFile(file)
+    return { ok: true, url: ref, path: ref }
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9.\-_ ]/g, '_').trim()

@@ -33,6 +33,8 @@ create table if not exists public.materials (
   url text,
   file text,
   file_name text,
+  file_url text,
+  file_path text,
   created_at timestamptz default now()
 );
 
