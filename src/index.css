@@ -121,3 +121,66 @@
     animation: none !important;
   }
 }
+/* ---------- Preview dokumen (docx & xlsx) ---------- */
+.docx-preview {
+  color: var(--color-ink);
+  line-height: 1.6;
+}
+.docx-preview .docx-wrapper {
+  background: #fff;
+  padding: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+}
+.docx-preview table {
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+}
+.docx-preview td,
+.docx-preview th {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.docx-preview img {
+  max-width: 100%;
+}
+.docx-preview p {
+  margin: 0.5rem 0;
+}
+.excel-preview {
+  color: var(--color-ink);
+}
+.excel-preview section {
+  margin-bottom: 1.25rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.excel-preview .sheet-name {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.excel-preview table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.excel-preview td,
+.excel-preview th {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 4px 8px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.excel-preview th {
+  background: rgba(0, 0, 0, 0.03);
+  font-weight: 600;
+}

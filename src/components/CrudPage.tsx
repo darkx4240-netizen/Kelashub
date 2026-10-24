@@ -65,7 +65,7 @@ export function CrudPage({
   const [fileData, setFileData] = useState<Record<string, { name: string; file: File }>>({})
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [preview, setPreview] = useState<{ url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' } | null>(null)
+  const [preview, setPreview] = useState<{ url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' | 'word' | 'excel' } | null>(null)
   const list = rows
 
   function resetForm() {
@@ -177,19 +177,26 @@ export function CrudPage({
     const name = row.file_name ? String(row.file_name) : 'Dokumen'
     const ext = name.split('.').pop()?.toLowerCase() ?? ''
     const isImage = /png|jpe?g|gif|webp|bmp|svg/.test(ext)
-    const isOffice = /docx?|xlsx?|pptx?|odt|ods|odp|rtf|txt/.test(ext)
-    // File lokal (IndexedDB) → resolve jadi blob URL yang bisa dirender.
-    const url = await resolveLocalFileUrl(rawUrl)
-    if (isImage) {
-      setPreview({ url, name, kind: 'image' })
-    } else if (isOffice && !isLocalFileRef(rawUrl)) {
-      // Office/dokumen teks di Supabase (URL publik) → viewer online Microsoft.
-      setPreview({ url, name, kind: 'office' })
-    } else if (isOffice) {
-      // Office lokal: browser tidak bisa render inline, viewer online pun tidak
-      // bisa mengakses blob lokal → tampilkan info + tombol unduh.
-      setPreview({ url, name, kind: 'office-local' })
-    } else {
+        const isWord = ext === 'docx'
+        const isExcel = /xlsx?/.test(ext)
+        const isOffice = /docx?|xlsx?|pptx?|odt|ods|odp|rtf|txt/.test(ext)
+        // File lokal (IndexedDB) → resolve jadi blob URL yang bisa dirender.
+        const url = await resolveLocalFileUrl(rawUrl)
+        if (isImage) {
+          setPreview({ url, name, kind: 'image' })
+        } else if (isWord) {
+          // .docx dirender langsung di browser (lokal maupun URL publik).
+          setPreview({ url, name, kind: 'word' })
+        } else if (isExcel) {
+          // .xlsx/.xls dirender langsung di browser (lokal maupun URL publik).
+          setPreview({ url, name, kind: 'excel' })
+        } else if (isOffice && !isLocalFileRef(rawUrl)) {
+          // Office/dokumen teks lain di Supabase (URL publik) → viewer online Microsoft.
+          setPreview({ url, name, kind: 'office' })
+        } else if (isOffice) {
+          // Office lokal (ppt/odt/rtf/txt) yang tidak bisa dirender inline → unduh.
+          setPreview({ url, name, kind: 'office-local' })
+        } else {
       // PDF, file lokal, & yang tidak dikenal → preview inline (blob/pdf).
       setPreview({ url, name, kind: 'pdf' })
     }
@@ -444,7 +451,7 @@ function PreviewModal({
   preview,
   onClose,
 }: {
-  preview: { url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' }
+  preview: { url: string; name: string; kind: 'pdf' | 'image' | 'office' | 'office-local' | 'word' | 'excel' }
   onClose: () => void
 }) {
   const officeViewer =
@@ -472,6 +479,10 @@ function PreviewModal({
               alt={preview.name}
               className="mx-auto max-h-full w-auto object-contain"
             />
+          ) : preview.kind === 'word' ? (
+            <WordPreview url={preview.url} />
+          ) : preview.kind === 'excel' ? (
+            <ExcelPreview url={preview.url} />
           ) : preview.kind === 'office-local' ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
               <p className="text-sm font-medium text-ink">
@@ -500,9 +511,91 @@ function PreviewModal({
       </div>
     </div>
   )
+  }
+
+/** Render dokumen .docx langsung di browser. */
+function WordPreview({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    const el = ref.current
+    if (!el) return
+    setMsg('Memuat dokumen…')
+    ;(async () => {
+      try {
+        const res = await fetch(url)
+        if (!res.ok) throw new Error('gagal memuat')
+        const blob = await res.blob()
+        const container = el
+        container.innerHTML = ''
+        const styleEl = document.createElement('style')
+        container.appendChild(styleEl)
+        const { renderAsync } = await import('docx-preview')
+        await renderAsync(blob, container, styleEl, { inWrapper: true, breakPages: true })
+        if (!alive) return
+        setMsg('')
+      } catch (e) {
+        console.error('[kelashub] gagal render docx:', e)
+        if (alive) setMsg('Gagal menampilkan dokumen ini.')
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [url])
+
+  return (
+    <div className="h-full overflow-auto bg-white px-6 py-5">
+      {msg && <p className="py-10 text-center text-sm text-ink-soft">{msg}</p>}
+      <div ref={ref} className="docx-preview mx-auto max-w-[820px]" />
+    </div>
+  )
 }
 
-/** Toggle "selesai" untuk tugas (bisa oleh mahasiswa). */
+/** Render .xlsx/.xls jadi tabel HTML langsung di browser. */
+function ExcelPreview({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    let alive = true
+    const el = ref.current
+    if (!el) return
+    ;(async () => {
+      try {
+        const res = await fetch(url)
+        if (!res.ok) throw new Error('gagal memuat')
+        const buf = await res.arrayBuffer()
+        const XLSX = await import('xlsx')
+        const wb = XLSX.read(buf, { type: 'array' })
+        const html = wb.SheetNames.map((name) => {
+          const safe = name.replace(/</g, '&lt;')
+          const table = XLSX.utils.sheet_to_html(wb.Sheets[name])
+          return `<section data-sheet="${safe}"><h3 class="sheet-name">${safe}</h3>${table}</section>`
+        }).join('')
+        el.innerHTML = html
+        if (!alive) return
+        setMsg('')
+      } catch (e) {
+        console.error('[kelashub] gagal render xlsx:', e)
+        if (alive) setMsg('Gagal menampilkan spreadsheet ini.')
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [url])
+
+  return (
+    <div className="h-full overflow-auto bg-white px-6 py-5">
+      {msg && <p className="py-10 text-center text-sm text-ink-soft">{msg}</p>}
+      <div ref={ref} className="excel-preview mx-auto max-w-[900px]" />
+    </div>
+  )
+}
+
 export function TaskToggle({ row, refresh }: { row: DatabaseRow; refresh: () => void }) {
   const done = Boolean(row.done)
   return (
