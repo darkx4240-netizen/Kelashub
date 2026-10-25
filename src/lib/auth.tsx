@@ -41,6 +41,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 const SESSION_KEY = 'kelashub_session'
+const SESSION_EXPIRY_KEY = 'kelashub_session_expiry'
+const SESSION_TTL_MS = 15 * 60 * 1000 // 15 menit idle sebelum auto-logout
 const ADMIN_PW_KEY = 'kelashub_admin_pw_hash'
 const DEFAULT_ADMIN_USER = 'admin'
 const DEFAULT_ADMIN_PASSWORD = 'Sebadak2026'
@@ -54,7 +56,14 @@ async function sha256(text: string): Promise<string> {
 function readSession(): Session | null {
   try {
     const raw = localStorage.getItem(SESSION_KEY)
-    return raw ? (JSON.parse(raw) as Session) : null
+    if (!raw) return null
+    const expiry = Number(localStorage.getItem(SESSION_EXPIRY_KEY) ?? 0)
+    // Sesi kedaluwarsa (idle terlalu lama) → anggap tidak ada.
+    if (expiry && Date.now() > expiry) {
+      clearSession()
+      return null
+    }
+    return JSON.parse(raw) as Session
   } catch {
     return null
   }
@@ -62,10 +71,34 @@ function readSession(): Session | null {
 
 function writeSession(s: Session | null) {
   try {
-    if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s))
-    else localStorage.removeItem(SESSION_KEY)
+    if (s) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(s))
+      localStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + SESSION_TTL_MS))
+    } else {
+      clearSession()
+    }
   } catch {
     /* ignore quota/private-mode */
+  }
+}
+
+function clearSession() {
+  try {
+    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(SESSION_EXPIRY_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+function touchSession() {
+  // Perpanjang masa aktif saat ada aktivitas user (cek tiap kali boot/aksi).
+  try {
+    if (localStorage.getItem(SESSION_KEY)) {
+      localStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + SESSION_TTL_MS))
+    }
+  } catch {
+    /* ignore */
   }
 }
 
@@ -83,39 +116,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [liveAuth, setLiveAuth] = useState(false)
 
   // Boot: cek sesi lokal + (bila live) sesi Supabase
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      let liveSession = false
-      if (isSupabaseConfigured && supabase) {
-        const { data } = await supabase.auth.getSession()
-        const u = data.session?.user
-        if (u) {
-          const meta = u.user_metadata as Record<string, unknown>
-          const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
-          if (active)
-            setSession({
-              id: u.id,
-              name: (meta?.full_name as string) ?? u.email ?? 'Mahasiswa',
-              role,
-              liveAuth: true,
-            })
-          setLiveAuth(true)
-          liveSession = true
-        }
-      }
-      if (active && !liveSession) {
+    useEffect(() => {
+      let active = true
+      ;(async () => {
+        // Cek TTL sesi lokal dulu. Kalau kedaluwarsa (idle > TTL), bersihkan
+        // semua termasuk sesi Supabase, supaya link dari perangkat lain tidak
+        // langsung masuk sebagai admin tanpa login ulang.
         const local = readSession()
-        if (local) setSession(local)
+        if (!local) {
+          if (supabase) await supabase.auth.signOut().catch(() => {})
+          if (active) setLoading(false)
+          return
+        }
+        let liveSession = false
+        if (isSupabaseConfigured && supabase) {
+          const { data } = await supabase.auth.getSession()
+          const u = data.session?.user
+          if (u) {
+            const meta = u.user_metadata as Record<string, unknown>
+            const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
+            if (active)
+              setSession({
+                id: u.id,
+                name: (meta?.full_name as string) ?? u.email ?? 'Mahasiswa',
+                role,
+                liveAuth: true,
+              })
+            setLiveAuth(true)
+            liveSession = true
+          }
+        }
+        if (active && !liveSession && local) {
+          setSession(local)
+        }
+        if (active) setLoading(false)
+      })().catch(() => {
+        if (active) setLoading(false)
+      })
+      return () => {
+        active = false
       }
-      if (active) setLoading(false)
-    })().catch(() => {
-      if (active) setLoading(false)
-    })
-    return () => {
-      active = false
-    }
-  }, [])
+    }, [])
 
   const loginStudent = useCallback(async (nimInput: string): Promise<AuthResult> => {
     const nim = nimInput.trim()
@@ -206,6 +247,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     writeSession(null)
     if (supabase) void supabase.auth.signOut()
   }, [])
+
+  // Idle auto-logout: tutup sesi bila tak ada aktivitas selama TTL.
+  useEffect(() => {
+    if (!session) return
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click']
+    let timer = window.setTimeout(logout, SESSION_TTL_MS)
+    const reset = () => {
+      window.clearTimeout(timer)
+      touchSession()
+      timer = window.setTimeout(logout, SESSION_TTL_MS)
+    }
+    events.forEach((e) => window.addEventListener(e, reset, { passive: true }))
+    return () => {
+      window.clearTimeout(timer)
+      events.forEach((e) => window.removeEventListener(e, reset))
+    }
+  }, [session, logout])
 
   const changePassword = useCallback(
     async (current: string, next: string): Promise<AuthResult> => {
