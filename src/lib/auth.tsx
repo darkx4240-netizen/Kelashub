@@ -44,6 +44,7 @@ const SESSION_KEY = 'kelashub_session'
 const ADMIN_PW_KEY = 'kelashub_admin_pw_hash'
 const DEFAULT_ADMIN_USER = 'admin'
 const DEFAULT_ADMIN_PASSWORD = 'Sebadak2026'
+const DEFAULT_ADMIN_EMAIL = 'admin@kelashub.id'
 
 async function sha256(text: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
@@ -138,6 +139,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const u = username.trim().toLowerCase()
     if (u !== DEFAULT_ADMIN_USER) {
       return { ok: false, error: 'Username admin tidak dikenal.' }
+    }
+    // Utamakan Supabase bila tersedia: sesi jadi live (bukan Mode Demo).
+    // Fallback ke hash lokal hanya untuk dev/offline tanpa Supabase.
+    if (supabase) {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: DEFAULT_ADMIN_EMAIL,
+        password,
+      })
+      if (!error && data.user) {
+        const meta = (data.user.user_metadata ?? {}) as Record<string, unknown>
+        const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
+        const s: Session = {
+          id: data.user.id,
+          name: (meta?.full_name as string) ?? 'Vandha',
+          role,
+          liveAuth: true,
+        }
+        setSession(s)
+        writeSession(s)
+        setLiveAuth(true)
+        return { ok: true }
+      }
     }
     const stored = readAdminHash() ?? (await sha256(DEFAULT_ADMIN_PASSWORD))
     const inputHash = await sha256(password)
