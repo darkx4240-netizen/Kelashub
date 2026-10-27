@@ -98,14 +98,16 @@ const MATERIAL_COLUMNS: ColumnDef[] = [
   { value: (r) => String(r.title ?? '—') },
   {
     value: () => '',
-    sub: (r) =>
-      r.file_name
-        ? `Terlampir: ${String(r.file_name)}`
-        : r.file_url
-          ? 'Ada dokumen'
-          : r.size
-            ? String(r.size)
-            : undefined,
+    sub: (r) => {
+      const desc = r.description ? String(r.description) : ''
+      const shortDesc = desc.length > 140 ? desc.slice(0, 140) + '…' : desc
+      if (r.course && desc) return `${String(r.course)} — ${shortDesc}`
+      if (r.course) return String(r.course)
+      if (r.file_name) return `Terlampir: ${String(r.file_name)}`
+      if (r.file_url) return 'Ada dokumen'
+      if (r.size) return String(r.size)
+      return shortDesc || undefined
+    },
   },
 ]
 
