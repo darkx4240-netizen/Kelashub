@@ -8,9 +8,11 @@ import {
   Settings,
   GraduationCap,
   MessagesSquare,
+  MessageCircle,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '../lib/auth'
+import { waLink } from '../lib/contact'
 
 export interface NavItem {
   id: string
@@ -100,7 +102,16 @@ export function Sidebar({ active, onNavigate, role, name, nim, open, onClose }: 
           })}
         </nav>
 
-        <div className="border-t border-black/[0.06] p-4">
+        <div className="border-t border-black/[0.06] p-4 space-y-3">
+          <a
+            href={waLink('Halo Admin, saya mau bertanya / melaporkan bug di KelasHub.')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Hubungi Admin
+          </a>
           <div className="flex items-center gap-3 rounded-xl bg-canvas p-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-ink shadow-sm">
               {name ? name.slice(0, 2).toUpperCase() : 'KH'}

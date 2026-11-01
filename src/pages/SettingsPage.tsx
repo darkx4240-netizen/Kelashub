@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { KeyRound, ShieldCheck, LogOut, UserRound } from 'lucide-react'
+import { KeyRound, ShieldCheck, LogOut, UserRound, MessageCircle } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { Panel } from '../components/Section'
+import { waLink } from '../lib/contact'
 
 export function SettingsPage() {
   const { session, logout, changePassword, changeStudentPin } = useAuth()
@@ -79,10 +80,33 @@ export function SettingsPage() {
       </Panel>
 
       <Panel className="anim-enter p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <KeyRound className="h-4 w-4 text-primary" />
-          <h3 className="text-base font-semibold text-ink">Ganti Password</h3>
-        </div>
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <MessageCircle className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-ink">Lapor Bug / Hubungi Admin</h3>
+                  <p className="mt-0.5 text-xs text-ink-soft">
+                    Ada pertanyaan atau nemu error? Chat admin langsung via WhatsApp.
+                  </p>
+                </div>
+              </div>
+              <a
+                href={waLink('Halo Admin, saya mau bertanya / melaporkan bug di KelasHub.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat Admin
+              </a>
+            </Panel>
+
+            <Panel className="anim-enter p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <KeyRound className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-semibold text-ink">Ganti Password</h3>
+              </div>
 
         {!canChange ? (
           <p className="rounded-lg bg-black/[0.03] px-4 py-3 text-sm text-ink-soft">
