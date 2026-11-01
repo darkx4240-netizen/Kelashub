@@ -7,6 +7,8 @@ export type TableName =
   | 'announcements'
   | 'members'
   | 'activity'
+  | 'discussions'
+  | 'replies'
 
 export type Row = Record<string, unknown>
 
@@ -68,26 +70,60 @@ function seed(): Record<TableName, Row[]> {
   ]
 
   const activity: Row[] = [
-    { id: 'act_1', text: 'Revan Krestian mengumpulkan Rangkuman Algoritma.', created_at: iso('2026-10-22') },
-    { id: 'act_2', text: 'Admin memposting pengumuman baru.', created_at: iso('2026-10-21') },
-    { id: 'act_3', text: 'Materi Latihan Soal Pemrograman ditambahkan.', created_at: iso('2026-10-20') },
-    { id: 'act_4', text: 'Jadwal kuliah diperbarui.', created_at: iso('2026-10-19') },
-  ]
+      { id: 'act_1', text: 'Revan Krestian mengumpulkan Rangkuman Algoritma.', created_at: iso('2026-10-22') },
+      { id: 'act_2', text: 'Admin memposting pengumuman baru.', created_at: iso('2026-10-21') },
+      { id: 'act_3', text: 'Materi Latihan Soal Pemrograman ditambahkan.', created_at: iso('2026-10-20') },
+      { id: 'act_4', text: 'Jadwal kuliah diperbarui.', created_at: iso('2026-10-19') },
+    ]
 
-  return { schedules, tasks, materials, announcements, members, activity }
-}
+    const discussions: Row[] = [
+      {
+        id: 'dsc_1',
+        title: 'Ada yang paham Normalisasi Basis Data 3NF?',
+        content:
+          'Gue masih bingung bedain 2NF sama 3NF, terutama soal transitive dependency. Boleh dong yang udah paham jelasin pake contoh simpel.',
+        author: 'Muhamad Nabil',
+        author_role: 'student',
+        created_at: iso('2026-10-22T09:30:00'),
+        reply_count: 2,
+      },
+      {
+        id: 'dsc_2',
+        title: 'Info: lab komputer dipindah ke Lab 2 besok',
+        content: 'Sesuai pengumuman, praktikum Basis Data besok pindah ke Lab Komputer 2 jam 08:00. Jangan ke Lab 1 ya.',
+        author: 'Admin Kelas',
+        author_role: 'admin',
+        created_at: iso('2026-10-23T07:15:00'),
+        reply_count: 1,
+      },
+    ]
+
+    const replies: Row[] = [
+      { id: 'rpl_1', discussion_id: 'dsc_1', author: 'Ruth Sahanaya', author_role: 'student', content: '3NF itu intinya semua atribut non-key harus cuma bergantung ke primary key, bukan ke atribut non-key lain. Kalo ada A→B→C berarti masih 2NF.', created_at: iso('2026-10-22T10:05:00') },
+      { id: 'rpl_2', discussion_id: 'dsc_1', author: 'Admin Kelas', author_role: 'admin', content: 'Betul. Cek juga materi ch.4 di halaman Materi, ada slide contohnya.', created_at: iso('2026-10-22T10:40:00') },
+      { id: 'rpl_3', discussion_id: 'dsc_2', author: 'Adistia Yunita Putri', author_role: 'student', content: 'Siap, thanks infonya!', created_at: iso('2026-10-23T08:00:00') },
+    ]
+
+    return { schedules, tasks, materials, announcements, members, activity, discussions, replies }
+  }
 
 function load(): Record<TableName, Row[]> {
   if (cache) return cache
   try {
     const raw = localStorage.getItem(STORE_KEY)
     if (raw) {
-      const parsed = JSON.parse(raw) as { data?: Record<TableName, Row[]> }
-      if (parsed.data) {
-        cache = parsed.data
-        return cache
-      }
-    }
+          const parsed = JSON.parse(raw) as { data?: Record<TableName, Row[]> }
+          if (parsed.data) {
+            cache = parsed.data
+            // Backfill tabel baru bila cache lama belum punya (jangan dibiarkan undefined).
+            const seedData = seed()
+            for (const key of Object.keys(seedData) as TableName[]) {
+              if (!Array.isArray(cache[key])) cache[key] = seedData[key]
+            }
+            persist()
+            return cache
+          }
+        }
   } catch {
     /* corrupted → reseed */
   }

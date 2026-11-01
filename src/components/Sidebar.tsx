@@ -7,6 +7,7 @@ import {
   Users,
   Settings,
   GraduationCap,
+  MessagesSquare,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '../lib/auth'
@@ -26,8 +27,9 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'materials', label: 'Materi', icon: BookOpen },
   { id: 'announcements', label: 'Pengumuman', icon: Megaphone },
   { id: 'members', label: 'Anggota Kelas', icon: Users },
+  { id: 'forum', label: 'Forum Diskusi', icon: MessagesSquare },
   { id: 'settings', label: 'Pengaturan', icon: Settings },
-]
+  ]
 
 interface SidebarProps {
   active: string

@@ -10,6 +10,7 @@ import { AdminPage } from './pages/AdminPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { MembersPage } from './pages/MembersPage'
+import { ForumPage } from './pages/ForumPage'
 import {
   SchedulePage,
   TasksPage,
@@ -25,8 +26,9 @@ const PAGE_TITLES: Record<string, string> = {
   materials: 'Materi',
   announcements: 'Pengumuman',
   members: 'Anggota Kelas',
-  settings: 'Pengaturan',
-}
+    forum: 'Forum Diskusi',
+    settings: 'Pengaturan',
+  }
 
 function useTables() {
   const schedules = useTable('schedules', '*', { column: 'created_at', ascending: true }, 20)
@@ -34,6 +36,8 @@ function useTables() {
   const materials = useTable('materials', '*', { column: 'created_at', ascending: true }, 50)
   const announcements = useTable('announcements', '*', { column: 'created_at', ascending: false }, 20)
   const members = useTable('members', '*', { column: 'created_at', ascending: true }, 100)
+  const discussions = useTable('discussions', '*', { column: 'created_at', ascending: false }, 100)
+  const replies = useTable('replies', '*', { column: 'created_at', ascending: true }, 500)
   const activity = useTable('activity', '*', { column: 'created_at', ascending: false }, 20)
 
   const tables = {
@@ -42,6 +46,8 @@ function useTables() {
     materials: materials.rows,
     announcements: announcements.rows,
     members: members.rows,
+    discussions: discussions.rows,
+    replies: replies.rows,
     activity: activity.rows,
   }
 
@@ -51,6 +57,8 @@ function useTables() {
     materials: materials.refresh,
     announcements: announcements.refresh,
     members: members.refresh,
+    discussions: discussions.refresh,
+    replies: replies.refresh,
     activity: activity.refresh,
   }
 
@@ -61,6 +69,8 @@ function useTables() {
     materials.loading ||
     announcements.loading ||
     members.loading ||
+    discussions.loading ||
+    replies.loading ||
     activity.loading
 
   return { tables, refreshers, live, loading }
@@ -177,6 +187,21 @@ function PageView({
   if (active === 'members') {
     return (
       <MembersPage role={role} live={live} members={tables.members} refresh={refreshers.members} />
+    )
+  }
+  if (active === 'forum') {
+    return (
+      <ForumPage
+        role={role}
+        name={name}
+        live={live}
+        discussions={tables.discussions}
+        replies={tables.replies}
+        refresh={() => {
+          refreshers.discussions()
+          refreshers.replies()
+        }}
+      />
     )
   }
   if (active === 'dashboard') {

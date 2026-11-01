@@ -62,6 +62,25 @@ create table if not exists public.activity (
   created_at timestamptz default now()
 );
 
+create table if not exists public.discussions (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  content text,
+  author text,
+  author_role text,
+  reply_count integer default 0,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.replies (
+  id uuid primary key default gen_random_uuid(),
+  discussion_id uuid,
+  author text,
+  author_role text,
+  content text,
+  created_at timestamptz default now()
+);
+
 -- ---------- ROW LEVEL SECURITY ----------
 
 alter table public.schedules enable row level security;
@@ -70,6 +89,8 @@ alter table public.materials enable row level security;
 alter table public.announcements enable row level security;
 alter table public.members enable row level security;
 alter table public.activity enable row level security;
+alter table public.discussions enable row level security;
+alter table public.replies enable row level security;
 
 -- ---------- POLICY ----------
 -- Catatan: untuk project kelas skala kecil ini, policy dibuka untuk
@@ -81,7 +102,7 @@ alter table public.activity enable row level security;
 do $$
 declare t text;
 begin
-  foreach t in array array['schedules','tasks','materials','announcements','members','activity']
+  foreach t in array array['schedules','tasks','materials','announcements','members','activity','discussions','replies']
   loop
     execute format('drop policy if exists "baca" on public.%I', t);
     execute format('drop policy if exists "tulis" on public.%I', t);
@@ -123,6 +144,15 @@ insert into public.activity (text) values
   ('Admin memposting pengumuman baru.'),
   ('Materi Latihan Soal Pemrograman ditambahkan.'),
   ('Jadwal kuliah diperbarui.');
+
+insert into public.discussions (title, content, author, author_role) values
+  ('Ada yang paham Normalisasi Basis Data 3NF?', 'Gue masih bingung bedain 2NF sama 3NF, terutama soal transitive dependency. Boleh dong yang udah paham jelasin pake contoh simpel.', 'Muhamad Nabil', 'student'),
+  ('Info: lab komputer dipindah ke Lab 2 besok', 'Sesuai pengumuman, praktikum Basis Data besok pindah ke Lab Komputer 2 jam 08:00. Jangan ke Lab 1 ya.', 'Admin Kelas', 'admin');
+
+insert into public.replies (discussion_id, author, author_role, content) values
+  ((select id from public.discussions where title like 'Ada yang paham%'), 'Ruth Sahanaya', 'student', '3NF itu intinya semua atribut non-key harus cuma bergantung ke primary key, bukan ke atribut non-key lain. Kalo ada A→B→C berarti masih 2NF.'),
+  ((select id from public.discussions where title like 'Ada yang paham%'), 'Admin Kelas', 'admin', 'Betul. Cek juga materi ch.4 di halaman Materi, ada slide contohnya.'),
+  ((select id from public.discussions where title like 'Info: lab komputer%'), 'Adistia Yunita Putri', 'student', 'Siap, thanks infonya!');
 
 -- ---------- SELESAI ----------
 -- Setelah menjalankan file ini, jalankan juga file "seed_members.sql"
