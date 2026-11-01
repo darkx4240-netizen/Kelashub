@@ -36,7 +36,6 @@ interface AuthContextValue {
     logout: () => void
     changePassword: (current: string, next: string) => Promise<AuthResult>
     changeStudentPin: (current: string, next: string) => Promise<AuthResult>
-    hasAdminPassword: boolean
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -44,9 +43,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 const SESSION_KEY = 'kelashub_session'
 const SESSION_EXPIRY_KEY = 'kelashub_session_expiry'
 const SESSION_TTL_MS = 15 * 60 * 1000 // 15 menit idle sebelum auto-logout
-const ADMIN_PW_KEY = 'kelashub_admin_pw_hash'
 const DEFAULT_ADMIN_USER = 'admin'
-const DEFAULT_ADMIN_PASSWORD = 'Sebadak2026'
 const DEFAULT_ADMIN_EMAIL = 'admin@kelashub.id'
 const STUDENT_PIN_KEY = 'kelashub_student_pins'
 
@@ -71,11 +68,6 @@ function writeStudentPins(pins: Record<string, string>) {
   } catch {
     /* ignore */
   }
-}
-
-async function sha256(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 function readSession(): Session | null {
@@ -124,14 +116,6 @@ function touchSession() {
     }
   } catch {
     /* ignore */
-  }
-}
-
-function readAdminHash(): string | null {
-  try {
-    return localStorage.getItem(ADMIN_PW_KEY)
-  } catch {
-    return null
   }
 }
 
@@ -211,45 +195,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const loginAdmin = useCallback(async (username: string, password: string): Promise<AuthResult> => {
-    const u = username.trim().toLowerCase()
-    if (u !== DEFAULT_ADMIN_USER) {
+    if (username.trim().toLowerCase() !== DEFAULT_ADMIN_USER) {
       return { ok: false, error: 'Username admin tidak dikenal.' }
     }
-    // Utamakan Supabase bila tersedia: sesi jadi live (bukan Mode Demo).
-    // Fallback ke hash lokal hanya untuk dev/offline tanpa Supabase.
-    if (supabase) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: DEFAULT_ADMIN_EMAIL,
-        password,
-      })
-      if (!error && data.user) {
-        const meta = (data.user.user_metadata ?? {}) as Record<string, unknown>
-        const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
-        const s: Session = {
-          id: data.user.id,
-          name: (meta?.full_name as string) ?? 'Vandha',
-          role,
-          liveAuth: true,
-        }
-        setSession(s)
-        writeSession(s)
-        setLiveAuth(true)
-        return { ok: true }
-      }
+    if (!supabase) {
+      return { ok: false, error: 'Server belum tersedia. Coba beberapa saat lagi.' }
     }
-    const stored = readAdminHash() ?? (await sha256(DEFAULT_ADMIN_PASSWORD))
-    const inputHash = await sha256(password)
-    if (inputHash !== stored) {
-      return { ok: false, error: 'Password salah.' }
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: DEFAULT_ADMIN_EMAIL,
+      password,
+    })
+    if (error || !data.user) {
+      return { ok: false, error: error?.message ?? 'Login gagal.' }
     }
+    const meta = (data.user.user_metadata ?? {}) as Record<string, unknown>
+    const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
     const s: Session = {
-      id: 'admin',
-      name: 'Vandha',
-      role: 'admin',
-      liveAuth: false,
+      id: data.user.id,
+      name: (meta?.full_name as string) ?? 'Admin',
+      role,
+      liveAuth: true,
     }
     setSession(s)
     writeSession(s)
+    setLiveAuth(true)
     return { ok: true }
   }, [])
 
@@ -300,35 +269,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session, logout])
 
   const changePassword = useCallback(
-    async (current: string, next: string): Promise<AuthResult> => {
+    async (_current: string, next: string): Promise<AuthResult> => {
       if (next.length < 6) {
         return { ok: false, error: 'Password baru minimal 6 karakter.' }
       }
-      if (session?.liveAuth) {
-        if (!supabase) return { ok: false, error: 'Supabase belum dikonfigurasi.' }
-        const { error } = await supabase.auth.updateUser({ password: next })
-        return error ? { ok: false, error: error.message } : { ok: true }
-      }
-      // demo lokal: verifikasi password admin saat ini
-      if (session?.role !== 'admin') {
-        return { ok: false, error: 'Hanya admin yang bisa mengganti password.' }
-      }
-      const stored = readAdminHash() ?? (await sha256(DEFAULT_ADMIN_PASSWORD))
-      const curHash = await sha256(current)
-      if (curHash !== stored) {
-        return { ok: false, error: 'Password saat ini salah.' }
-      }
-      try {
-        localStorage.setItem(ADMIN_PW_KEY, await sha256(next))
-      } catch {
-        /* ignore */
-      }
-      return { ok: true }
-          },
-          [session],
-        )
+      if (!supabase) return { ok: false, error: 'Server belum tersedia.' }
+      const { error } = await supabase.auth.updateUser({ password: next })
+      return error ? { ok: false, error: error.message } : { ok: true }
+    },
+    [session],
+  )
 
-        const changeStudentPin = useCallback(
+  const changeStudentPin = useCallback(
           async (current: string, next: string): Promise<AuthResult> => {
             if (session?.role !== 'student') {
               return { ok: false, error: 'Hanya mahasiswa yang bisa mengganti PIN.' }
@@ -362,7 +314,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             logout,
             changePassword,
             changeStudentPin,
-            hasAdminPassword: true,
           }),
           [session, loading, liveAuth, loginStudent, loginAdmin, loginSupabase, logout, changePassword, changeStudentPin],
         )

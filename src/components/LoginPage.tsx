@@ -172,11 +172,6 @@ export function LoginPage() {
               Login pakai NIM sesuai daftar anggota kelas.
             </p>
           )}
-          {tab === 'admin' && (
-            <p className="mt-4 text-center text-xs text-mute">
-              Default: admin · Sebadak2026 (ganti di Pengaturan setelah masuk).
-            </p>
-          )}
           {tab === 'supabase' && !isSupabaseConfigured && (
             <p className="mt-4 text-center text-xs text-mute">
               Supabase belum dikonfigurasi (.env). Gunakan tab Mahasiswa atau Admin dulu.
