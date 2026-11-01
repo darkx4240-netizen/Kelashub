@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Send } from 'lucide-react'
+import { Send, Pencil, Trash2 } from 'lucide-react'
 import type { DatabaseRow } from '../lib/data'
-import { insertRow, deleteRow } from '../lib/mutations'
+import { insertRow, updateRow, deleteRow } from '../lib/mutations'
 
 interface ForumPageProps {
   role: string
@@ -19,22 +19,24 @@ interface Msg {
   role: string
   content: string
   at: number
+  edited?: boolean
 }
 
+const EDIT_WINDOW_MS = 60_000 // 1 menit
+
 function parseTime(isoStr: unknown): number {
+  if (typeof isoStr === 'number') return Number.isFinite(isoStr) ? isoStr : 0
   if (typeof isoStr !== 'string' || !isoStr) return 0
   const t = Date.parse(isoStr)
   return Number.isNaN(t) ? 0 : t
 }
 
-function fmtClock(isoStr: unknown): string {
-  const t = parseTime(isoStr)
+function fmtClock(t: number): string {
   if (!t) return ''
   return new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
-function dayLabel(isoStr: unknown): string {
-  const t = parseTime(isoStr)
+function dayLabel(t: number): string {
   if (!t) return ''
   const d = new Date(t)
   const today = new Date()
@@ -68,6 +70,8 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
   const messages = useMemo<Msg[]>(() => {
@@ -79,6 +83,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
         role: String(d.author_role ?? 'student'),
         content: String(d.content ?? ''),
         at: parseTime(d.created_at),
+        edited: Boolean(d.edited),
       })),
       ...replies.map((r) => ({
         id: String(r.id),
@@ -87,6 +92,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
         role: String(r.author_role ?? 'student'),
         content: String(r.content ?? ''),
         at: parseTime(r.created_at),
+        edited: Boolean(r.edited),
       })),
     ]
     return merged
@@ -97,6 +103,8 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages.length])
+
+  const now = useMemo(() => Date.now(), [messages.length])
 
   async function send() {
     const c = text.trim()
@@ -118,11 +126,51 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
     refresh()
   }
 
-  async function remove(msg: Msg) {
+  function canEdit(m: Msg): boolean {
+    if (m.author !== name) return false
+    return now - m.at <= EDIT_WINDOW_MS
+  }
+
+  function startEdit(m: Msg) {
+    setEditingId(m.id)
+    setEditText(m.content)
+  }
+
+  async function saveEdit(m: Msg) {
+    const c = editText.trim()
+    if (!c) {
+      setEditingId(null)
+      setEditText('')
+      return
+    }
+    if (c === m.content) {
+      setEditingId(null)
+      setEditText('')
+      return
+    }
+    setBusy(true)
+    setError('')
+    const patch: Record<string, unknown> = { content: c, edited: true }
+    if (m.table === 'discussions') {
+      patch.title = c.length > 80 ? c.slice(0, 80) + '…' : c
+    }
+    const res = await updateRow(m.table, m.id, patch)
+    setBusy(false)
+    if (!res.ok) {
+      setError(res.error ?? 'Gagal menyimpan perubahan.')
+      return
+    }
+    setEditingId(null)
+    setEditText('')
+    refresh()
+  }
+
+  async function remove(m: Msg) {
     const ok = window.confirm('Hapus pesan ini?')
     if (!ok) return
-    const res = await deleteRow(msg.table, msg.id)
+    const res = await deleteRow(m.table, m.id)
     if (res.ok) refresh()
+    else setError('Gagal menghapus pesan.')
   }
 
   const rowClassName = (mine: boolean) => (mine ? 'justify-end' : 'justify-start')
@@ -149,7 +197,9 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
               {messages.map((m, i) => {
                 const mine = m.author === name
                 const showDay = i === 0 || dayLabel(messages[i - 1].at) !== dayLabel(m.at)
-                const canDelete = role === 'admin' || mine
+                const editable = canEdit(m)
+                const deletable = role === 'admin'
+                const editing = editingId === m.id
                 return (
                   <div key={m.id}>
                     {showDay && (
@@ -175,30 +225,72 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                             {m.author}
                           </span>
                         )}
-                        <div
-                          className={`group relative whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                            mine
-                              ? 'rounded-br-sm bg-primary text-white'
-                              : 'rounded-bl-sm border border-black/[0.05] bg-white text-ink shadow-sm'
-                          }`}
-                        >
-                          {m.content}
-                          <span
-                            className={`mt-0.5 block text-right text-[10px] ${
-                              mine ? 'text-white/70' : 'text-mute'
+
+                        {editing ? (
+                          <div className="flex w-full items-start gap-2">
+                            <textarea
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              rows={2}
+                              className="min-w-[220px] flex-1 rounded-xl border border-primary bg-white px-3 py-2 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => void saveEdit(m)}
+                              disabled={busy}
+                              className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"
+                            >
+                              Simpan
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingId(null)
+                                setEditText('')
+                              }}
+                              className="h-8 rounded-lg px-3 text-xs font-medium text-mute hover:bg-black/[0.05]"
+                            >
+                              Batal
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            className={`group relative whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                              mine
+                                ? 'rounded-br-sm bg-primary text-white'
+                                : 'rounded-bl-sm border border-black/[0.05] bg-white text-ink shadow-sm'
                             }`}
                           >
-                            {fmtClock(m.at)}
-                          </span>
-                        </div>
-                        {canDelete && (
-                          <button
-                            onClick={() => remove(m)}
-                            aria-label="Hapus pesan"
-                            className="mt-0.5 hidden px-1 text-[11px] text-rose-500 hover:underline group-hover:block"
-                          >
-                            Hapus
-                          </button>
+                            {m.content}
+                            <span
+                              className={`mt-0.5 block text-right text-[10px] ${
+                                mine ? 'text-white/70' : 'text-mute'
+                              }`}
+                            >
+                              {fmtClock(m.at)}
+                              {m.edited ? ' · diedit' : ''}
+                            </span>
+                          </div>
+                        )}
+
+                        {(deletable || editable) && !editing && (
+                          <div className={`mt-0.5 flex gap-1 px-1 ${mine ? 'flex-row-reverse' : ''}`}>
+                            {editable && (
+                              <button
+                                onClick={() => startEdit(m)}
+                                className="text-[11px] font-medium text-mute hover:text-ink hover:underline"
+                              >
+                                Edit
+                              </button>
+                            )}
+                            {deletable && (
+                              <button
+                                onClick={() => remove(m)}
+                                className="text-[11px] font-medium text-rose-500 hover:underline"
+                              >
+                                Hapus
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

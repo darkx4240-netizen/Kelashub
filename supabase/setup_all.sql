@@ -69,6 +69,7 @@ create table if not exists public.discussions (
   author text,
   author_role text,
   reply_count integer default 0,
+  edited boolean default false,
   created_at timestamptz default now()
 );
 
@@ -78,6 +79,7 @@ create table if not exists public.replies (
   author text,
   author_role text,
   content text,
+  edited boolean default false,
   created_at timestamptz default now()
 );
 
