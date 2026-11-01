@@ -81,7 +81,7 @@ export function SettingsPage() {
 
       <Panel className="anim-enter p-6">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/[0.12] text-emerald-400">
                   <MessageCircle className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -95,7 +95,7 @@ export function SettingsPage() {
                 href={waLink('Halo Admin, saya mau bertanya / melaporkan bug di KelasHub.')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600"
+                className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/[0.12]0 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-600"
               >
                 <MessageCircle className="h-4 w-4" />
                 Chat Admin
@@ -109,7 +109,7 @@ export function SettingsPage() {
               </div>
 
         {!canChange ? (
-          <p className="rounded-lg bg-black/[0.03] px-4 py-3 text-sm text-ink-soft">
+          <p className="rounded-lg bg-white/[0.04] px-4 py-3 text-sm text-ink-soft">
             Akun mahasiswa (Mode Demo) login via NIM + PIN. Ganti PIN melalui form Ganti PIN di bawah.
           </p>
         ) : (
@@ -124,7 +124,7 @@ export function SettingsPage() {
                   value={current}
                   onChange={(e) => setCurrent(e.target.value)}
                   autoComplete="current-password"
-                  className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </label>
             )}
@@ -135,7 +135,7 @@ export function SettingsPage() {
                 value={next}
                 onChange={(e) => setNext(e.target.value)}
                 autoComplete="new-password"
-                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </label>
             <label className="block">
@@ -147,14 +147,14 @@ export function SettingsPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 autoComplete="new-password"
-                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </label>
 
             {msg && (
               <p
                 className={`rounded-lg px-3 py-2 text-xs font-medium ${
-                  msg.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                  msg.ok ? 'bg-emerald-500/[0.12] text-emerald-400' : 'bg-rose-500/[0.12] text-rose-400'
                 }`}
               >
                 {msg.text}
@@ -194,7 +194,7 @@ export function SettingsPage() {
                 onChange={(e) => setPinCurrent(e.target.value)}
                 inputMode="numeric"
                 autoComplete="current-password"
-                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </label>
             <label className="block">
@@ -207,13 +207,13 @@ export function SettingsPage() {
                 onChange={(e) => setPinNext(e.target.value)}
                 inputMode="numeric"
                 autoComplete="new-password"
-                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </label>
             {pinMsg && (
               <p
                 className={`rounded-lg px-3 py-2 text-xs font-medium ${
-                  pinMsg.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                  pinMsg.ok ? 'bg-emerald-500/[0.12] text-emerald-400' : 'bg-rose-500/[0.12] text-rose-400'
                 }`}
               >
                 {pinMsg.text}
@@ -238,7 +238,7 @@ export function SettingsPage() {
       <Panel className="anim-enter p-6">
         <button
           onClick={logout}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-50 px-5 text-sm font-semibold text-rose-600 transition-all duration-200 hover:bg-rose-100"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-500/[0.12] px-5 text-sm font-semibold text-rose-400 transition-all duration-200 hover:bg-rose-500/[0.2]"
         >
           <LogOut className="h-4 w-4" />
           Keluar

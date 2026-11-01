@@ -51,13 +51,13 @@ function dayLabel(t: number): string {
 
 const AVATAR_COLORS = [
   'bg-indigo-500',
-  'bg-rose-500',
-  'bg-emerald-500',
-  'bg-amber-500',
+  'bg-rose-500/[0.12]0',
+  'bg-emerald-500/[0.12]0',
+  'bg-amber-500/[0.12]0',
   'bg-sky-500',
   'bg-fuchsia-500',
   'bg-teal-500',
-  'bg-orange-500',
+  'bg-orange-500/[0.12]0',
 ]
 
 function avatarColor(name: string): string {
@@ -186,7 +186,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-card">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-surface shadow-card">
         <div className="flex-1 overflow-y-auto px-3 py-4 md:px-5">
           {messages.length === 0 ? (
             <p className="py-16 text-center text-sm text-mute">
@@ -204,7 +204,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                   <div key={m.id}>
                     {showDay && (
                       <div className="my-3 flex justify-center">
-                        <span className="rounded-full bg-black/[0.05] px-3 py-1 text-[11px] font-medium text-mute">
+                        <span className="rounded-full bg-white/[0.06] px-3 py-1 text-[11px] font-medium text-mute">
                           {dayLabel(m.at)}
                         </span>
                       </div>
@@ -232,7 +232,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                               value={editText}
                               onChange={(e) => setEditText(e.target.value)}
                               rows={2}
-                              className="min-w-[220px] flex-1 rounded-xl border border-primary bg-white px-3 py-2 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20"
+                              className="min-w-[220px] flex-1 rounded-xl border border-primary bg-surface px-3 py-2 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/20"
                               autoFocus
                             />
                             <button
@@ -247,7 +247,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                                 setEditingId(null)
                                 setEditText('')
                               }}
-                              className="h-8 rounded-lg px-3 text-xs font-medium text-mute hover:bg-black/[0.05]"
+                              className="h-8 rounded-lg px-3 text-xs font-medium text-mute hover:bg-white/[0.06]"
                             >
                               Batal
                             </button>
@@ -257,7 +257,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                             className={`group relative whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                               mine
                                 ? 'rounded-br-sm bg-primary text-white'
-                                : 'rounded-bl-sm border border-black/[0.05] bg-white text-ink shadow-sm'
+                                : 'rounded-bl-sm border border-white/[0.07] bg-surface text-ink shadow-sm'
                             }`}
                           >
                             {m.content}
@@ -285,7 +285,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
                             {deletable && (
                               <button
                                 onClick={() => remove(m)}
-                                className="text-[11px] font-medium text-rose-500 hover:underline"
+                                className="text-[11px] font-medium text-rose-400 hover:underline"
                               >
                                 Hapus
                               </button>
@@ -302,9 +302,9 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
           )}
         </div>
 
-        <div className="shrink-0 border-t border-black/[0.06] bg-white px-3 py-3 md:px-4">
+        <div className="shrink-0 border-t border-white/[0.08] bg-surface px-3 py-3 md:px-4">
           {error && (
-            <p className="mb-2 rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+            <p className="mb-2 rounded-lg bg-rose-500/[0.12] px-3 py-2 text-xs font-medium text-rose-400">
               {error}
             </p>
           )}
@@ -320,7 +320,7 @@ export function ForumPage({ role, name, live, discussions, replies, refresh }: F
               }}
               rows={1}
               placeholder="Ketik pesan…"
-              className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-black/[0.1] bg-white px-4 py-2.5 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-white/[0.12] bg-surface px-4 py-2.5 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             <button
               onClick={() => void send()}

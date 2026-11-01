@@ -51,23 +51,23 @@ export function Sidebar({ active, onNavigate, role, name, nim, open, onClose }: 
       {/* overlay mobile */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px] md:hidden"
           onClick={onClose}
           aria-hidden
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-black/[0.06] bg-white transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-white/[0.08] bg-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:static md:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand */}
         <div className="flex h-16 items-center gap-2.5 px-5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-500 text-white shadow-soft">
+          <span className="neon-glow flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-indigo-500 text-white">
             <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
           </span>
-          <span className="text-[17px] font-bold tracking-tight text-ink">KelasHub</span>
+          <span className="neon-text text-[17px] font-bold tracking-tight text-ink">KelasHub</span>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3 no-scrollbar">
@@ -86,7 +86,7 @@ export function Sidebar({ active, onNavigate, role, name, nim, open, onClose }: 
                   `group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ` +
                   (isActive
                     ? 'bg-primary-soft text-primary'
-                    : 'text-ink-soft hover:bg-black/[0.04] hover:text-ink')
+                    : 'text-ink-soft hover:bg-white/[0.06] hover:text-ink')
                 }
               >
                 <Icon
@@ -102,18 +102,18 @@ export function Sidebar({ active, onNavigate, role, name, nim, open, onClose }: 
           })}
         </nav>
 
-        <div className="border-t border-black/[0.06] p-4 space-y-3">
+        <div className="border-t border-white/[0.08] p-4 space-y-3">
           <a
             href={waLink('Halo Admin, saya mau bertanya / melaporkan bug di KelasHub.')}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500/[0.12] px-3 py-2.5 text-sm font-semibold text-emerald-400 transition hover:bg-emerald-500/[0.2]"
           >
             <MessageCircle className="h-4 w-4" />
             Hubungi Admin
           </a>
           <div className="flex items-center gap-3 rounded-xl bg-canvas p-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-ink shadow-sm">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface text-sm font-semibold text-ink shadow-sm">
               {name ? name.slice(0, 2).toUpperCase() : 'KH'}
             </span>
             <div className="min-w-0">

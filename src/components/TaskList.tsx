@@ -30,8 +30,8 @@ export function TaskList({ items, live }: TaskListProps) {
           <span
             className={`anim-enter mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
               item.done
-                ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-rose-50 text-rose-600'
+                ? 'bg-emerald-500/[0.12] text-emerald-400'
+                : 'bg-rose-500/[0.12] text-rose-400'
             }`}
             style={{ animationDelay: `${i * 50}ms` }}
           >
@@ -50,7 +50,7 @@ export function TaskList({ items, live }: TaskListProps) {
             )}
           </div>
           {item.due && !item.done && (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium text-ink-soft">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/[0.05] px-2.5 py-1 text-[11px] font-medium text-ink-soft">
               <Clock3 className="h-3 w-3" />
               {item.due}
             </span>

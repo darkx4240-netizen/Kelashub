@@ -107,29 +107,29 @@ export function MembersPage({ role, live, members, refresh }: MembersPageProps) 
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">{error}</p>
+        <p className="rounded-lg bg-rose-500/[0.12] px-3 py-2 text-xs font-medium text-rose-400">{error}</p>
       )}
 
       <Section title="Daftar Mahasiswa">
         <Panel className="p-0">
-          <div className="border-b border-black/[0.04] p-4">
+          <div className="border-b border-white/[0.06] p-4">
             <div className="relative max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mute" />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Cari nama atau NIM…"
-                className="h-10 w-full rounded-xl border border-black/[0.1] bg-white pl-9 pr-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-10 w-full rounded-xl border border-white/[0.12] bg-surface pl-9 pr-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
           <div className="max-h-[560px] overflow-y-auto">
-            <ul className="divide-y divide-black/[0.04]">
+            <ul className="divide-y divide-white/[0.06]">
               {filtered.map((s, i) => (
                 <li
                   key={s.id}
-                  className="anim-enter flex items-center gap-3 px-4 py-3 transition hover:bg-black/[0.02]"
+                  className="anim-enter flex items-center gap-3 px-4 py-3 transition hover:bg-white/[0.05]"
                   style={{ animationDelay: `${Math.min(i, 24) * 20}ms` }}
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
@@ -143,14 +143,14 @@ export function MembersPage({ role, live, members, refresh }: MembersPageProps) 
                     <div className="flex shrink-0 items-center gap-1">
                       <button
                         onClick={() => openEdit(s)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-black/[0.05] hover:text-ink"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-white/[0.06] hover:text-ink"
                         aria-label="Edit"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => remove(s.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-rose-50 hover:text-rose-600"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-rose-500/[0.18]0/[0.12] hover:text-rose-400"
                         aria-label="Hapus"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -171,8 +171,8 @@ export function MembersPage({ role, live, members, refresh }: MembersPageProps) 
 
       {showForm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowForm(false)} />
-          <div className="anim-enter relative w-full max-w-md rounded-2xl border border-black/[0.06] bg-white p-6 shadow-card-hover">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={() => setShowForm(false)} />
+          <div className="anim-enter relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-surface p-6 shadow-card-hover">
             <h3 className="mb-4 text-lg font-semibold text-ink">
               {editing ? 'Edit Anggota' : 'Tambah Anggota'}
             </h3>
@@ -183,7 +183,7 @@ export function MembersPage({ role, live, members, refresh }: MembersPageProps) 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nama lengkap"
-                  className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </label>
               <label className="block">
@@ -193,14 +193,14 @@ export function MembersPage({ role, live, members, refresh }: MembersPageProps) 
                   onChange={(e) => setNim(e.target.value)}
                   placeholder="1926xxxx"
                   inputMode="numeric"
-                  className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 font-mono text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 font-mono text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </label>
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="inline-flex h-10 items-center rounded-xl px-4 text-sm font-medium text-ink-soft transition hover:bg-black/[0.05]"
+                  className="inline-flex h-10 items-center rounded-xl px-4 text-sm font-medium text-ink-soft transition hover:bg-white/[0.06]"
                 >
                   Batal
                 </button>

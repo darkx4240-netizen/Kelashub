@@ -75,7 +75,7 @@ export function AdminPage({ name, live, tables, onAction }: AdminPageProps) {
             <button
               key={a.id}
               onClick={() => onAction(a.target)}
-              className="anim-enter flex flex-col items-start gap-3 rounded-2xl border border-black/[0.06] bg-white p-4 text-left shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-card-hover"
+              className="anim-enter flex flex-col items-start gap-3 rounded-2xl border border-white/[0.08] bg-surface p-4 text-left shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-card-hover"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
                 {a.icon}
@@ -92,7 +92,7 @@ export function AdminPage({ name, live, tables, onAction }: AdminPageProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         <Section title="Anggota Kelas" className="lg:col-span-1">
           <Panel className="p-0">
-            <div className="divide-y divide-black/[0.04] p-2">
+            <div className="divide-y divide-white/[0.06] p-2">
               {members.length === 0 ? (
                 <p className="p-4 text-sm text-mute">
                   {live ? 'Belum ada anggota.' : 'Data anggota belum dimuat.'}
@@ -101,7 +101,7 @@ export function AdminPage({ name, live, tables, onAction }: AdminPageProps) {
                 members.map((m, i) => (
                   <div
                     key={m.id}
-                    className="anim-enter flex items-center gap-3 rounded-xl p-3 transition hover:bg-black/[0.02]"
+                    className="anim-enter flex items-center gap-3 rounded-xl p-3 transition hover:bg-white/[0.05]"
                     style={{ animationDelay: `${i * 40}ms` }}
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
@@ -162,13 +162,13 @@ function ManageRow({
   return (
     <button
       onClick={() => onAction(target)}
-      className="flex w-full items-center gap-3 rounded-xl border border-black/[0.05] bg-white px-4 py-3 text-left transition hover:bg-black/[0.02]"
+      className="flex w-full items-center gap-3 rounded-xl border border-white/[0.07] bg-surface px-4 py-3 text-left transition hover:bg-white/[0.05]"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/[0.03] text-ink-soft">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-ink-soft">
         {icon}
       </span>
       <span className="flex-1 text-sm font-medium text-ink">{label}</span>
-      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-600">
+      <span className="inline-flex items-center rounded-full bg-emerald-500/[0.12] px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
         Buka
       </span>
     </button>

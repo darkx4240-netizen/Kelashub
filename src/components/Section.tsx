@@ -24,7 +24,7 @@ export function Section({ id, title, action, children, className = '' }: Section
 export function Panel({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-2xl border border-black/[0.06] bg-white p-5 shadow-card ${className}`}
+      className={`rounded-2xl border border-white/[0.08] bg-surface p-5 shadow-card ${className}`}
     >
       {children}
     </div>
@@ -34,7 +34,7 @@ export function Panel({ children, className = '' }: { children: ReactNode; class
 /** Daftar item dengan keterangan "loading" atau kosong. */
 export function EmptyHint({ text = 'Belum ada data' }: { text?: string }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl bg-black/[0.02] px-4 py-3 text-sm text-mute">
+    <div className="flex items-center gap-2 rounded-xl bg-white/[0.04] px-4 py-3 text-sm text-mute">
       <span className="h-1.5 w-1.5 rounded-full bg-mute/50" />
       {text}
     </div>

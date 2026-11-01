@@ -68,7 +68,7 @@ export function MaterialsQuick({
         items.map((m, i) => (
           <TiltCard key={m.id} variant="lift" className="flex items-center gap-3 p-3.5">
             <span
-              className="anim-enter flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"
+              className="anim-enter flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/[0.12] text-emerald-400"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <BookOpen className="h-5 w-5" />

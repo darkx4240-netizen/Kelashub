@@ -29,7 +29,7 @@ export function AnnouncementList({ items, live }: AnnouncementListProps) {
         <TiltCard key={item.id} variant="lift" className="p-4">
           <div className="flex items-start gap-3">
             <span
-              className="anim-enter flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600"
+              className="anim-enter flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-500/[0.12] text-orange-400"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <Megaphone className="h-4.5 w-4.5" />

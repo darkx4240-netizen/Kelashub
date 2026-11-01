@@ -7,10 +7,10 @@ interface TopbarProps {
 
 export function Topbar({ onMenu, pageTitle }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-black/[0.05] bg-canvas/80 px-4 backdrop-blur-md md:px-8">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-white/[0.07] bg-canvas/80 px-4 backdrop-blur-md md:px-8">
       <button
         onClick={onMenu}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition hover:bg-black/[0.05] md:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition hover:bg-white/[0.06] md:hidden"
         aria-label="Buka menu"
       >
         <Menu className="h-5 w-5" />
@@ -21,7 +21,7 @@ export function Topbar({ onMenu, pageTitle }: TopbarProps) {
       </h1>
 
       <button
-        className="hidden h-9 items-center gap-2 rounded-lg bg-white px-3 text-sm text-mute shadow-sm ring-1 ring-black/[0.06] transition hover:text-ink-soft sm:flex"
+        className="hidden h-9 items-center gap-2 rounded-lg bg-surface px-3 text-sm text-mute shadow-sm ring-1 ring-white/[0.06] transition hover:text-ink-soft sm:flex"
         aria-label="Cari"
       >
         <Search className="h-4 w-4" />
@@ -29,7 +29,7 @@ export function Topbar({ onMenu, pageTitle }: TopbarProps) {
       </button>
 
       <button
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition hover:bg-black/[0.05]"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-ink-soft transition hover:bg-white/[0.06]"
         aria-label="Notifikasi"
       >
         <Bell className="h-5 w-5" />

@@ -47,7 +47,7 @@ export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: Hero
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
       style={style}
-      className="anim-enter preserve-3d relative overflow-hidden rounded-2xl border border-black/[0.06] bg-gradient-to-br from-white via-indigo-50/40 to-white p-4 shadow-soft md:rounded-3xl md:p-8"
+      className="anim-enter preserve-3d relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white via-indigo-50/40 to-white p-4 shadow-soft md:rounded-3xl md:p-8"
     >
       {/* dekorasi blur lembut */}
       <div
@@ -56,24 +56,24 @@ export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: Hero
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl"
+        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-indigo-500/[0.2]/30 blur-3xl"
       />
 
       {/* lapisan 3D dekoratif */}
       <div
         aria-hidden
-        className="float-slow pointer-events-none absolute right-10 top-10 hidden h-24 w-24 rounded-2xl border border-black/[0.05] bg-white/70 shadow-card backdrop-blur sm:block"
+        className="float-slow pointer-events-none absolute right-10 top-10 hidden h-24 w-24 rounded-2xl border border-white/[0.07] bg-surface/70 shadow-card backdrop-blur sm:block"
         style={{ transform: 'translateZ(40px)' }}
       />
       <div
         aria-hidden
-        className="float-slow-x pointer-events-none absolute right-24 top-24 hidden h-14 w-14 rounded-xl border border-black/[0.05] bg-white/80 shadow-card backdrop-blur md:block"
+        className="float-slow-x pointer-events-none absolute right-24 top-24 hidden h-14 w-14 rounded-xl border border-white/[0.07] bg-surface/80 shadow-card backdrop-blur md:block"
         style={{ transform: 'translateZ(70px)' }}
       />
 
       <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-5">
         <div className="max-w-xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm ring-1 ring-black/[0.05]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm ring-1 ring-white/[0.05]">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             {today}
           </span>
@@ -96,7 +96,7 @@ export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: Hero
             </a>
             <a
               href="#tugas"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm ring-1 ring-black/[0.06] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card"
+              className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink shadow-sm ring-1 ring-white/[0.06] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card"
             >
               <ClipboardList className="h-4 w-4" />
               Tugas Saya
@@ -106,7 +106,7 @@ export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: Hero
 
         {/* mini-card jadwal berikutnya */}
         <div
-          className="preserve-3d relative w-full max-w-[240px] rounded-2xl border border-black/[0.06] bg-white/80 p-4 shadow-card backdrop-blur"
+          className="preserve-3d relative w-full max-w-[240px] rounded-2xl border border-white/[0.08] bg-surface/80 p-4 shadow-card backdrop-blur"
           style={{ transform: 'translateZ(55px)' }}
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-mute">

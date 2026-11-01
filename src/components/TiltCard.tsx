@@ -23,7 +23,7 @@ export function TiltCard({ children, className = '', variant = 'tilt', max }: Ti
       onPointerLeave={isTilt ? onPointerLeave : undefined}
       style={isTilt ? style : undefined}
       className={
-        `group relative rounded-2xl border border-black/[0.06] bg-white shadow-card ` +
+        `group relative rounded-2xl border border-white/[0.08] bg-surface shadow-card ` +
         `transition-[transform,box-shadow] duration-240 ease-[cubic-bezier(0.22,1,0.36,1)] ` +
         `hover:shadow-card-hover ` +
         (isTilt ? '' : 'hover:-translate-y-1 ') +

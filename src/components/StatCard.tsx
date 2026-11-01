@@ -25,7 +25,7 @@ export function StatCard({ item, index = 0, live = false }: StatCardProps) {
   const Icon = item.icon
   return (
     <div
-      className={`anim-enter group relative overflow-hidden rounded-xl border border-black/[0.06] bg-white p-3.5 shadow-card transition-[transform,box-shadow] duration-220 hover:-translate-y-1 hover:shadow-card-hover md:rounded-2xl md:p-5`}
+      className={`anim-enter group relative overflow-hidden rounded-xl border border-white/[0.08] bg-surface p-3.5 shadow-card transition-[transform,box-shadow] duration-220 hover:-translate-y-1 hover:shadow-card-hover md:rounded-2xl md:p-5`}
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start justify-between gap-2.5 md:gap-3">

@@ -117,7 +117,9 @@ function AppShell() {
   const title = PAGE_TITLES[active] ?? 'Dashboard'
 
   return (
-    <div className="flex min-h-screen bg-canvas text-ink">
+    <div className="grid-bg flex min-h-screen bg-canvas text-ink">
+      {/* ambient glow */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-0 h-64 bg-[radial-gradient(60%_100%_at_50%_0%,rgba(139,92,246,0.18),transparent)]" />
       <Sidebar
         active={active}
         onNavigate={(id) => navigate(id, false)}
@@ -153,7 +155,7 @@ function AppShell() {
 
         {!isSupabaseConfigured && (
           <footer className="px-4 pb-5 text-center text-xs text-mute">
-            Data tersimpan lokal di perangkat. Isi <code className="rounded bg-black/[0.04] px-1.5 py-0.5">.env</code> dengan
+            Data tersimpan lokal di perangkat. Isi <code className="rounded bg-white/[0.05] px-1.5 py-0.5">.env</code> dengan
             URL &amp; anon key Supabase untuk sinkron ke database.
           </footer>
         )}

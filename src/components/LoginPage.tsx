@@ -35,9 +35,9 @@ export function LoginPage() {
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-canvas px-4 py-10">
       {/* dekorasi blur 3D */}
       <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-200/30 blur-3xl" />
-      <div aria-hidden className="float-slow pointer-events-none absolute right-16 top-20 hidden h-20 w-20 rounded-2xl border border-black/[0.05] bg-white/70 shadow-card md:block" />
-      <div aria-hidden className="float-slow-x pointer-events-none absolute left-14 bottom-24 hidden h-14 w-14 rounded-xl border border-black/[0.05] bg-white/80 shadow-card md:block" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/[0.2]/30 blur-3xl" />
+      <div aria-hidden className="float-slow pointer-events-none absolute right-16 top-20 hidden h-20 w-20 rounded-2xl border border-white/[0.07] bg-surface/70 shadow-card md:block" />
+      <div aria-hidden className="float-slow-x pointer-events-none absolute left-14 bottom-24 hidden h-14 w-14 rounded-xl border border-white/[0.07] bg-surface/80 shadow-card md:block" />
 
       <div className="anim-enter relative w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
@@ -48,9 +48,9 @@ export function LoginPage() {
           <p className="mt-1 text-sm text-ink-soft">Masuk ke workspace kelasmu</p>
         </div>
 
-        <div className="rounded-3xl border border-black/[0.06] bg-white p-6 shadow-card-hover">
+        <div className="rounded-3xl border border-white/[0.08] bg-surface p-6 shadow-card-hover">
           {/* Tabs */}
-          <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-black/[0.04] p-1">
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-white/[0.05] p-1">
             <TabButton active={tab === 'student'} onClick={() => { setTab('student'); setError('') }}>
               <IdCard className="h-4 w-4" /> Mahasiswa
             </TabButton>
@@ -72,7 +72,7 @@ export function LoginPage() {
                                 placeholder="contoh: 19261409"
                                 inputMode="numeric"
                                 autoComplete="username"
-                                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                               />
                             </Field>
                             <Field
@@ -86,7 +86,7 @@ export function LoginPage() {
                                 placeholder="contoh: 3409"
                                 inputMode="numeric"
                                 autoComplete="current-password"
-                                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                               />
                             </Field>
                           </>
@@ -101,7 +101,7 @@ export function LoginPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="kamu@email.com"
                     autoComplete="email"
-                    className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </Field>
                 <Field label="Password" icon={<KeyRound className="h-4 w-4" />}>
@@ -111,14 +111,14 @@ export function LoginPage() {
                     onChange={(e) => setEmailPass(e.target.value)}
                     placeholder="••••••••"
                     autoComplete="current-password"
-                    className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </Field>
               </>
             )}
 
             {error && (
-              <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">
+              <p className="rounded-lg bg-rose-500/[0.12] px-3 py-2 text-xs font-medium text-rose-400">
                 {error}
               </p>
             )}
@@ -167,7 +167,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition-all duration-200 ${
-        active ? 'bg-white text-ink shadow-sm' : 'text-mute hover:text-ink-soft'
+        active ? 'bg-surface text-ink shadow-sm' : 'text-mute hover:text-ink-soft'
       }`}
     >
       {children}

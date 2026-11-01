@@ -40,10 +40,10 @@ interface CrudPageProps {
 }
 
 const BADGE_TONE: Record<string, string> = {
-  green: 'bg-emerald-50 text-emerald-600',
-  amber: 'bg-amber-50 text-amber-600',
-  rose: 'bg-rose-50 text-rose-600',
-  gray: 'bg-black/[0.04] text-ink-soft',
+  green: 'bg-emerald-500/[0.12] text-emerald-400',
+  amber: 'bg-amber-500/[0.12] text-amber-400',
+  rose: 'bg-rose-500/[0.12] text-rose-400',
+  gray: 'bg-white/[0.05] text-ink-soft',
 }
 
 export function CrudPage({
@@ -223,7 +223,7 @@ export function CrudPage({
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">{error}</p>
+        <p className="rounded-lg bg-rose-500/[0.12] px-3 py-2 text-xs font-medium text-rose-400">{error}</p>
       )}
 
       <Section title={title}>
@@ -231,11 +231,11 @@ export function CrudPage({
           {list.length === 0 ? (
             <p className="p-6 text-center text-sm text-mute">{emptyText}</p>
           ) : (
-            <ul className="divide-y divide-black/[0.04]">
+            <ul className="divide-y divide-white/[0.06]">
               {list.map((row, i) => (
                 <li
                   key={String(row.id)}
-                  className="anim-enter flex items-center gap-4 px-4 py-3.5 transition hover:bg-black/[0.02]"
+                  className="anim-enter flex items-center gap-4 px-4 py-3.5 transition hover:bg-white/[0.05]"
                   style={{ animationDelay: `${Math.min(i, 20) * 20}ms` }}
                 >
                   <div className="min-w-0 flex-1">
@@ -266,14 +266,14 @@ export function CrudPage({
                       <>
                         <button
                           onClick={() => void openPreview(row)}
-                          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-black/[0.03] px-2.5 text-xs font-semibold text-ink-soft transition hover:bg-black/[0.07]"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 text-xs font-semibold text-ink-soft transition hover:bg-white/[0.08]"
                         >
                           <Eye className="h-3.5 w-3.5" />
                           Lihat
                         </button>
                         <button
                           onClick={() => downloadFile(String(row.file_url), row.file_name ? String(row.file_name) : undefined)}
-                          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary-soft px-2.5 text-xs font-semibold text-primary transition hover:bg-indigo-100"
+                          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary-soft px-2.5 text-xs font-semibold text-primary transition hover:bg-indigo-500/[0.16]"
                         >
                           <Download className="h-3.5 w-3.5" />
                           Unduh
@@ -284,14 +284,14 @@ export function CrudPage({
                       <>
                         <button
                           onClick={() => openEdit(row)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-black/[0.05] hover:text-ink"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-white/[0.06] hover:text-ink"
                           aria-label="Edit"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => remove(row)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-rose-50 hover:text-rose-600"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:bg-rose-500/[0.18]0/[0.12] hover:text-rose-400"
                           aria-label="Hapus"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -328,7 +328,7 @@ export function CrudPage({
                     onChange={(e) => set(f.key, e.target.value)}
                     placeholder={f.placeholder}
                     rows={3}
-                    className="w-full rounded-xl border border-black/[0.1] bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-xl border border-white/[0.12] bg-surface px-3 py-2 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 ) : f.type === 'file' ? (
                   <FileInput
@@ -342,7 +342,7 @@ export function CrudPage({
                     value={form[f.key] ?? ''}
                     onChange={(e) => set(f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="h-11 w-full rounded-xl border border-white/[0.12] bg-surface px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 )}
               </label>
@@ -351,7 +351,7 @@ export function CrudPage({
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="inline-flex h-10 items-center rounded-xl px-4 text-sm font-medium text-ink-soft transition hover:bg-black/[0.05]"
+                className="inline-flex h-10 items-center rounded-xl px-4 text-sm font-medium text-ink-soft transition hover:bg-white/[0.06]"
               >
                 Batal
               </button>
@@ -412,7 +412,7 @@ function FileInput({
     <button
       type="button"
       onClick={() => ref.current?.click()}
-      className="flex h-11 w-full items-center gap-2 rounded-xl border border-dashed border-black/[0.15] bg-black/[0.02] px-3 text-sm text-ink-soft transition hover:border-primary hover:bg-primary-soft/40"
+      className="flex h-11 w-full items-center gap-2 rounded-xl border border-dashed border-white/[0.14] bg-white/[0.04] px-3 text-sm text-ink-soft transition hover:border-primary hover:bg-primary-soft/40"
     >
       <Paperclip className="h-4 w-4 text-mute" />
       <span className="truncate">{name ? name : 'Pilih file untuk diunggah…'}</span>
@@ -438,8 +438,8 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="anim-enter relative w-full max-w-md rounded-2xl border border-black/[0.06] bg-white p-6 shadow-card-hover">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="anim-enter relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-surface p-6 shadow-card-hover">
         <h3 className="mb-4 text-lg font-semibold text-ink">{title}</h3>
         {children}
       </div>
@@ -461,18 +461,18 @@ function PreviewModal({
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-8">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[3px]" onClick={onClose} />
-      <div className="anim-enter relative flex h-full max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-card-hover">
-        <div className="flex items-center justify-between gap-3 border-b border-black/[0.06] px-5 py-3.5">
+      <div className="anim-enter relative flex h-full max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-surface shadow-card-hover">
+        <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-5 py-3.5">
           <p className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{preview.name}</p>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-mute transition hover:bg-black/[0.05] hover:text-ink"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-mute transition hover:bg-white/[0.06] hover:text-ink"
             aria-label="Tutup"
           >
             ✕
           </button>
         </div>
-        <div className="min-h-0 flex-1 bg-black/[0.02]">
+        <div className="min-h-0 flex-1 bg-white/[0.04]">
           {preview.kind === 'image' ? (
             <img
               src={preview.url}
@@ -547,7 +547,7 @@ function WordPreview({ url }: { url: string }) {
   }, [url])
 
   return (
-    <div className="h-full overflow-auto bg-white px-6 py-5">
+    <div className="h-full overflow-auto bg-surface px-6 py-5">
       {msg && <p className="py-10 text-center text-sm text-ink-soft">{msg}</p>}
       <div ref={ref} className="docx-preview mx-auto max-w-[820px]" />
     </div>
@@ -589,7 +589,7 @@ function ExcelPreview({ url }: { url: string }) {
   }, [url])
 
   return (
-    <div className="h-full overflow-auto bg-white px-6 py-5">
+    <div className="h-full overflow-auto bg-surface px-6 py-5">
       {msg && <p className="py-10 text-center text-sm text-ink-soft">{msg}</p>}
       <div ref={ref} className="excel-preview mx-auto max-w-[900px]" />
     </div>
@@ -604,7 +604,7 @@ export function TaskToggle({ row, refresh }: { row: DatabaseRow; refresh: () => 
         await updateRow('tasks', String(row.id), { done: !done })
         refresh()
       }}
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:text-emerald-600"
+      className="flex h-8 w-8 items-center justify-center rounded-lg text-mute transition hover:text-emerald-400"
       aria-label={done ? 'Tandai belum selesai' : 'Tandai selesai'}
     >
       {done ? (
