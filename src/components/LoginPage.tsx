@@ -11,7 +11,7 @@ export function LoginPage() {
 
   const [nim, setNim] = useState('')
   const [studentPin, setStudentPin] = useState('')
-  const [adminUser, setAdminUser] = useState('admin')
+  const [adminUser, setAdminUser] = useState('')
   const [adminPass, setAdminPass] = useState('')
   const [email, setEmail] = useState('')
   const [emailPass, setEmailPass] = useState('')
@@ -104,7 +104,7 @@ export function LoginPage() {
                   <input
                     value={adminUser}
                     onChange={(e) => setAdminUser(e.target.value)}
-                    placeholder="admin"
+                    placeholder="Masukkan username admin"
                     autoComplete="username"
                     className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
