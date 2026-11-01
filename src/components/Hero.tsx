@@ -3,8 +3,11 @@ import {
   CalendarDays,
   ClipboardList,
   Clock,
-  Sparkles,
+  Terminal,
   ChevronRight,
+  Cpu,
+  Database,
+  Wifi,
 } from 'lucide-react'
 
 export interface HeroMeta {
@@ -19,8 +22,7 @@ export interface HeroMeta {
 }
 
 /**
- * Hero 3D: kartu sapaan dengan lapisan permukaan bertumpuk (layered),
- * tilt ikut pointer, dan elemen dekoratif melayang lambat.
+ * Hero bergaya terminal/hacker — nyambung sama tema Sistem Informasi.
  * Seluruh angka diambil dari database; tidak ada angka dummy.
  */
 export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: HeroMeta) {
@@ -33,104 +35,156 @@ export function Hero({ name, pendingTasks, todayClasses, nextClass, live }: Hero
     year: 'numeric',
   }).format(new Date())
 
-  const greeting =
+  const clock = new Date().toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  const userName = name || 'student'
+  const host = `${userName.toLowerCase().replace(/[^a-z0-9]/g, '_')}@kelashub`
+
+  const taskLine =
     live && pendingTasks !== null
-      ? `Ada ${pendingTasks} tugas menanti`
-      : 'Tugas kamu sudah terhubung ke kelas'
-  const classInfo =
+      ? `task --pending  →  ${pendingTasks} tugas menanti`
+      : `task --sync  →  terhubung ke kelas`
+
+  const classLine =
     live && todayClasses !== null
-      ? `${todayClasses} kelas dijadwalkan hari ini`
-      : 'Jadwal hari ini siap dilihat'
+      ? `schedule --today  →  ${todayClasses} kelas terjadwal`
+      : `schedule --load  →  jadwal siap`
 
   return (
     <section
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
       style={style}
-      className="anim-enter preserve-3d relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-white via-indigo-50/40 to-white p-4 shadow-soft md:rounded-3xl md:p-8"
+      className="anim-enter preserve-3d relative overflow-hidden rounded-2xl border border-primary/20 shadow-card neon-glow md:rounded-3xl"
     >
-      {/* dekorasi blur lembut */}
+      {/* dekorasi grid + glow */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 grid-bg opacity-60" />
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-indigo-500/[0.2]/30 blur-3xl"
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl"
       />
 
-      {/* lapisan 3D dekoratif */}
-      <div
-        aria-hidden
-        className="float-slow pointer-events-none absolute right-10 top-10 hidden h-24 w-24 rounded-2xl border border-white/[0.07] bg-surface/70 shadow-card backdrop-blur sm:block"
-        style={{ transform: 'translateZ(40px)' }}
-      />
-      <div
-        aria-hidden
-        className="float-slow-x pointer-events-none absolute right-24 top-24 hidden h-14 w-14 rounded-xl border border-white/[0.07] bg-surface/80 shadow-card backdrop-blur md:block"
-        style={{ transform: 'translateZ(70px)' }}
-      />
-
-      <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-5">
-        <div className="max-w-xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/70 px-3 py-1 text-xs font-medium text-ink-soft shadow-sm ring-1 ring-white/[0.05]">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            {today}
+      {/* terminal window */}
+      <div className="relative flex flex-col">
+        {/* title bar */}
+        <div className="flex items-center gap-2 border-b border-primary/15 bg-surface/70 px-4 py-2.5 backdrop-blur">
+          <span className="h-3 w-3 rounded-full bg-rose-500/80" />
+          <span className="h-3 w-3 rounded-full bg-amber-500/80" />
+          <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
+          <span className="ml-2 inline-flex items-center gap-1.5 font-mono text-xs text-ink-soft">
+            <Terminal className="h-3.5 w-3.5 text-primary" />
+            {host}:~/portal_si
           </span>
-          <h2 className="mt-3 text-xl font-bold tracking-tight text-ink md:mt-4 md:text-3xl">
-            Halo, {name} 👋
-          </h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-soft md:mt-2 md:text-[15px]">
-            Selamat datang kembali di workspace kelasmu.{' '}
-            {greeting}
-            {live && todayClasses !== null && ` dan ${classInfo.toLowerCase()}.`}
-          </p>
+          <span className="ml-auto hidden font-mono text-[11px] text-mute sm:inline">
+            {today} · {clock}
+          </span>
+        </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a
-              href="#jadwal"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0"
+        {/* terminal body */}
+        <div className="relative z-10 p-4 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="min-w-0 max-w-xl flex-1">
+              {/* boot status */}
+              <p className="font-mono text-xs leading-relaxed text-mute">
+                <span className="text-emerald-400">●</span> boot: portal mahasiswa SI initialized
+              </p>
+              <p className="mt-1 font-mono text-xs leading-relaxed text-mute">
+                <span className={live ? 'text-emerald-400' : 'text-amber-400'}>●</span>{' '}
+                {live ? 'db: supabase linked' : 'db: local fallback'}
+              </p>
+
+              <h2 className="mt-3 font-mono text-xl font-bold tracking-tight text-ink md:text-2xl">
+                <span className="neon-text text-primary">$</span>{' '}
+                <span className="text-ink">halo</span>{' '}
+                <span className="text-primary">{name}!</span>
+              </h2>
+              <p className="mt-2 font-mono text-sm leading-relaxed text-ink-soft">
+                <span className="select-none text-mute">{'// '}</span>
+                Selamat datang kembali di workspace akademik Sistem Informasi.
+              </p>
+
+              <div className="mt-3 space-y-1 font-mono text-sm text-ink-soft">
+                <p className="truncate">
+                  <span className="select-none text-primary">{'$ '}</span>
+                  {taskLine}
+                </p>
+                <p className="truncate">
+                  <span className="select-none text-primary">{'$ '}</span>
+                  {classLine}
+                </p>
+                <p className="truncate">
+                  <span className="select-none text-mute">{'$ '}</span>
+                  <span className="text-mute">help --menu  →  pilih modul di bawah</span>
+                </p>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a
+                  href="#jadwal"
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-mono text-sm font-semibold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover active:translate-y-0"
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  ./jadwal
+                </a>
+                <a
+                  href="#tugas"
+                  className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-2.5 font-mono text-sm font-semibold text-ink ring-1 ring-white/[0.08] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.04]"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  ./tugas
+                </a>
+              </div>
+            </div>
+
+            {/* mini-card jadwal berikutnya */}
+            <div
+              className="preserve-3d relative w-full max-w-[260px] rounded-2xl border border-primary/20 bg-surface/80 p-4 shadow-card backdrop-blur"
+              style={{ transform: 'translateZ(55px)' }}
             >
-              <CalendarDays className="h-4 w-4" />
-              Lihat Jadwal
-            </a>
-            <a
-              href="#tugas"
-              className="inline-flex items-center gap-2 rounded-xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink shadow-sm ring-1 ring-white/[0.06] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card"
-            >
-              <ClipboardList className="h-4 w-4" />
-              Tugas Saya
-            </a>
+              <div className="flex items-center justify-between">
+                <p className="font-mono text-xs font-semibold uppercase tracking-wide text-mute">
+                  next_class
+                </p>
+                <Clock className="h-4 w-4 text-primary" />
+              </div>
+              <div className="mt-3 flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <Cpu className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-mono text-sm font-semibold text-ink">
+                    {live && nextClass ? nextClass.course : 'standby'}
+                  </p>
+                  <p className="font-mono text-xs text-ink-soft">
+                    {live && nextClass ? nextClass.time : 'menunggu jadwal'}
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-mute">
+                    {live && nextClass?.room ? nextClass.room : 'src: supabase'}
+                  </p>
+                </div>
+              </div>
+              <a
+                href="#jadwal"
+                className="mt-4 flex items-center gap-1 font-mono text-xs font-semibold text-primary"
+              >
+                full_log --all <ChevronRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* mini-card jadwal berikutnya */}
-        <div
-          className="preserve-3d relative w-full max-w-[240px] rounded-2xl border border-white/[0.08] bg-surface/80 p-4 shadow-card backdrop-blur"
-          style={{ transform: 'translateZ(55px)' }}
-        >
-          <p className="text-xs font-semibold uppercase tracking-wide text-mute">
-            Kelas berikutnya
-          </p>
-          <div className="mt-3 flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
-              <Clock className="h-5 w-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-ink">
-                {live && nextClass ? nextClass.course : 'Menunggu jadwal'}
-              </p>
-              <p className="text-xs text-ink-soft">
-                {live && nextClass ? nextClass.time : 'Terhubung ke kelasmu'}
-              </p>
-              <p className="mt-1 text-xs text-mute">
-                {live && nextClass?.room ? nextClass.room : 'Data diambil dari Supabase'}
-              </p>
-            </div>
-          </div>
-          <a href="#jadwal" className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
-            Jadwal lengkap <ChevronRight className="h-3.5 w-3.5" />
-          </a>
+        {/* footer status strip */}
+        <div className="relative flex items-center gap-3 border-t border-primary/15 bg-surface/50 px-4 py-2 font-mono text-[11px] text-mute backdrop-blur">
+          <span className="inline-flex items-center gap-1">
+            <Wifi className="h-3 w-3 text-emerald-400" /> {live ? 'online' : 'offline'}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Database className="h-3 w-3 text-primary" /> supabase
+          </span>
+          <span className="ml-auto hidden sm:inline">v1.0 · sistem informasi</span>
         </div>
       </div>
     </section>
