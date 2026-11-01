@@ -1,18 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { GraduationCap, IdCard, UserRound, KeyRound, LogIn, ShieldCheck } from 'lucide-react'
+import { GraduationCap, IdCard, UserRound, KeyRound, LogIn } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { isSupabaseConfigured } from '../lib/supabase'
 
-type Tab = 'student' | 'admin' | 'supabase'
+type Tab = 'student' | 'supabase'
 
 export function LoginPage() {
-  const { loginStudent, loginAdmin, loginSupabase } = useAuth()
+  const { loginStudent, loginSupabase } = useAuth()
   const [tab, setTab] = useState<Tab>('student')
 
   const [nim, setNim] = useState('')
   const [studentPin, setStudentPin] = useState('')
-  const [adminUser, setAdminUser] = useState('')
-  const [adminPass, setAdminPass] = useState('')
   const [email, setEmail] = useState('')
   const [emailPass, setEmailPass] = useState('')
 
@@ -26,7 +24,6 @@ export function LoginPage() {
     try {
       let res
       if (tab === 'student') res = await loginStudent(nim, studentPin)
-      else if (tab === 'admin') res = await loginAdmin(adminUser, adminPass)
       else res = await loginSupabase(email, emailPass)
       if (!res.ok) setError(res.error ?? 'Login gagal')
     } finally {
@@ -53,12 +50,9 @@ export function LoginPage() {
 
         <div className="rounded-3xl border border-black/[0.06] bg-white p-6 shadow-card-hover">
           {/* Tabs */}
-          <div className="mb-6 grid grid-cols-3 gap-1 rounded-xl bg-black/[0.04] p-1">
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-black/[0.04] p-1">
             <TabButton active={tab === 'student'} onClick={() => { setTab('student'); setError('') }}>
               <IdCard className="h-4 w-4" /> Mahasiswa
-            </TabButton>
-            <TabButton active={tab === 'admin'} onClick={() => { setTab('admin'); setError('') }}>
-              <ShieldCheck className="h-4 w-4" /> Admin
             </TabButton>
             <TabButton active={tab === 'supabase'} onClick={() => { setTab('supabase'); setError('') }}>
               <UserRound className="h-4 w-4" /> Akun
@@ -97,30 +91,6 @@ export function LoginPage() {
                             </Field>
                           </>
                         )}
-
-            {tab === 'admin' && (
-              <>
-                <Field label="Username" icon={<UserRound className="h-4 w-4" />}>
-                  <input
-                    value={adminUser}
-                    onChange={(e) => setAdminUser(e.target.value)}
-                    placeholder="Masukkan username admin"
-                    autoComplete="username"
-                    className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                </Field>
-                <Field label="Password" icon={<KeyRound className="h-4 w-4" />}>
-                  <input
-                    type="password"
-                    value={adminPass}
-                    onChange={(e) => setAdminPass(e.target.value)}
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                    className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                </Field>
-              </>
-            )}
 
             {tab === 'supabase' && (
               <>
@@ -174,7 +144,7 @@ export function LoginPage() {
           )}
           {tab === 'supabase' && !isSupabaseConfigured && (
             <p className="mt-4 text-center text-xs text-mute">
-              Supabase belum dikonfigurasi (.env). Gunakan tab Mahasiswa atau Admin dulu.
+              Supabase belum dikonfigurasi (.env). Gunakan tab Mahasiswa dulu.
             </p>
           )}
         </div>

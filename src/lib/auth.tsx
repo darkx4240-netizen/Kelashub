@@ -31,8 +31,7 @@ interface AuthContextValue {
   loading: boolean
   live: boolean
   loginStudent: (nim: string, pin: string) => Promise<AuthResult>
-    loginAdmin: (username: string, password: string) => Promise<AuthResult>
-    loginSupabase: (email: string, password: string) => Promise<AuthResult>
+      loginSupabase: (email: string, password: string) => Promise<AuthResult>
     logout: () => void
     changePassword: (current: string, next: string) => Promise<AuthResult>
     changeStudentPin: (current: string, next: string) => Promise<AuthResult>
@@ -43,8 +42,6 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 const SESSION_KEY = 'kelashub_session'
 const SESSION_EXPIRY_KEY = 'kelashub_session_expiry'
 const SESSION_TTL_MS = 15 * 60 * 1000 // 15 menit idle sebelum auto-logout
-const DEFAULT_ADMIN_USER = 'admin'
-const DEFAULT_ADMIN_EMAIL = 'admin@kelashub.id'
 const STUDENT_PIN_KEY = 'kelashub_student_pins'
 
 function defaultStudentPin(nim: string): string {
@@ -194,34 +191,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true }
   }, [])
 
-  const loginAdmin = useCallback(async (username: string, password: string): Promise<AuthResult> => {
-    if (username.trim().toLowerCase() !== DEFAULT_ADMIN_USER) {
-      return { ok: false, error: 'Username admin tidak dikenal.' }
-    }
-    if (!supabase) {
-      return { ok: false, error: 'Server belum tersedia. Coba beberapa saat lagi.' }
-    }
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: DEFAULT_ADMIN_EMAIL,
-      password,
-    })
-    if (error || !data.user) {
-      return { ok: false, error: error?.message ?? 'Login gagal.' }
-    }
-    const meta = (data.user.user_metadata ?? {}) as Record<string, unknown>
-    const role: Role = meta?.role === 'admin' ? 'admin' : 'student'
-    const s: Session = {
-      id: data.user.id,
-      name: (meta?.full_name as string) ?? 'Admin',
-      role,
-      liveAuth: true,
-    }
-    setSession(s)
-    writeSession(s)
-    setLiveAuth(true)
-    return { ok: true }
-  }, [])
-
   const loginSupabase = useCallback(
     async (email: string, password: string): Promise<AuthResult> => {
       if (!supabase) return { ok: false, error: 'Supabase belum dikonfigurasi.' }
@@ -309,13 +278,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             loading,
             live: isSupabaseConfigured && liveAuth,
             loginStudent,
-            loginAdmin,
             loginSupabase,
             logout,
             changePassword,
             changeStudentPin,
           }),
-          [session, loading, liveAuth, loginStudent, loginAdmin, loginSupabase, logout, changePassword, changeStudentPin],
+          [session, loading, liveAuth, loginStudent, loginSupabase, logout, changePassword, changeStudentPin],
         )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
