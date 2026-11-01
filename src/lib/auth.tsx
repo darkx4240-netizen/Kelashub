@@ -30,12 +30,13 @@ interface AuthContextValue {
   session: Session | null
   loading: boolean
   live: boolean
-  loginStudent: (nim: string) => Promise<AuthResult>
-  loginAdmin: (username: string, password: string) => Promise<AuthResult>
-  loginSupabase: (email: string, password: string) => Promise<AuthResult>
-  logout: () => void
-  changePassword: (current: string, next: string) => Promise<AuthResult>
-  hasAdminPassword: boolean
+  loginStudent: (nim: string, pin: string) => Promise<AuthResult>
+    loginAdmin: (username: string, password: string) => Promise<AuthResult>
+    loginSupabase: (email: string, password: string) => Promise<AuthResult>
+    logout: () => void
+    changePassword: (current: string, next: string) => Promise<AuthResult>
+    changeStudentPin: (current: string, next: string) => Promise<AuthResult>
+    hasAdminPassword: boolean
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -47,6 +48,30 @@ const ADMIN_PW_KEY = 'kelashub_admin_pw_hash'
 const DEFAULT_ADMIN_USER = 'admin'
 const DEFAULT_ADMIN_PASSWORD = 'Sebadak2026'
 const DEFAULT_ADMIN_EMAIL = 'admin@kelashub.id'
+const STUDENT_PIN_KEY = 'kelashub_student_pins'
+
+function defaultStudentPin(nim: string): string {
+  return nim.replace(/\D/g, '').slice(-4)
+}
+
+function readStudentPins(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(STUDENT_PIN_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw) as Record<string, string>
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeStudentPins(pins: Record<string, string>) {
+  try {
+    localStorage.setItem(STUDENT_PIN_KEY, JSON.stringify(pins))
+  } catch {
+    /* ignore */
+  }
+}
 
 async function sha256(text: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
@@ -158,13 +183,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, [])
 
-  const loginStudent = useCallback(async (nimInput: string): Promise<AuthResult> => {
-    const nim = nimInput.trim()
-    const match = ROSTER.find((s) => s.nim === nim)
-    if (!match) {
-      return { ok: false, error: 'NIM tidak ditemukan di daftar kelas.' }
-    }
-    const s: Session = {
+  const loginStudent = useCallback(async (nimInput: string, pinInput: string): Promise<AuthResult> => {
+      const nim = nimInput.trim()
+      const pin = pinInput.trim()
+      const match = ROSTER.find((s) => s.nim === nim)
+      if (!match) {
+        return { ok: false, error: 'NIM tidak ditemukan di daftar kelas.' }
+      }
+      if (!pin) {
+        return { ok: false, error: 'PIN wajib diisi.' }
+      }
+      const pins = readStudentPins()
+      const expected = pins[nim] ?? defaultStudentPin(nim)
+      if (pin !== expected) {
+        return { ok: false, error: 'PIN salah.' }
+      }
+      const s: Session = {
       id: `nim-${nim}`,
       name: match.name,
       role: 'student',
@@ -290,24 +324,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         /* ignore */
       }
       return { ok: true }
-    },
-    [session],
-  )
+          },
+          [session],
+        )
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      loading,
-      live: isSupabaseConfigured && liveAuth,
-      loginStudent,
-      loginAdmin,
-      loginSupabase,
-      logout,
-      changePassword,
-      hasAdminPassword: true,
-    }),
-    [session, loading, liveAuth, loginStudent, loginAdmin, loginSupabase, logout, changePassword],
-  )
+        const changeStudentPin = useCallback(
+          async (current: string, next: string): Promise<AuthResult> => {
+            if (session?.role !== 'student') {
+              return { ok: false, error: 'Hanya mahasiswa yang bisa mengganti PIN.' }
+            }
+            const nim = session.nim
+            if (!nim) {
+              return { ok: false, error: 'Sesi mahasiswa tidak punya NIM.' }
+            }
+            if (!/^\d{4,6}$/.test(next)) {
+              return { ok: false, error: 'PIN baru harus 4–6 digit angka.' }
+            }
+            const pins = readStudentPins()
+            const expected = pins[nim] ?? defaultStudentPin(nim)
+            if (current.trim() !== expected) {
+              return { ok: false, error: 'PIN saat ini salah.' }
+            }
+            writeStudentPins({ ...pins, [nim]: next })
+            return { ok: true }
+          },
+          [session],
+        )
+
+        const value = useMemo<AuthContextValue>(
+          () => ({
+            session,
+            loading,
+            live: isSupabaseConfigured && liveAuth,
+            loginStudent,
+            loginAdmin,
+            loginSupabase,
+            logout,
+            changePassword,
+            changeStudentPin,
+            hasAdminPassword: true,
+          }),
+          [session, loading, liveAuth, loginStudent, loginAdmin, loginSupabase, logout, changePassword, changeStudentPin],
+        )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

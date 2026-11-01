@@ -10,6 +10,7 @@ export function LoginPage() {
   const [tab, setTab] = useState<Tab>('student')
 
   const [nim, setNim] = useState('')
+  const [studentPin, setStudentPin] = useState('')
   const [adminUser, setAdminUser] = useState('admin')
   const [adminPass, setAdminPass] = useState('')
   const [email, setEmail] = useState('')
@@ -24,7 +25,7 @@ export function LoginPage() {
     setBusy(true)
     try {
       let res
-      if (tab === 'student') res = await loginStudent(nim)
+      if (tab === 'student') res = await loginStudent(nim, studentPin)
       else if (tab === 'admin') res = await loginAdmin(adminUser, adminPass)
       else res = await loginSupabase(email, emailPass)
       if (!res.ok) setError(res.error ?? 'Login gagal')
@@ -66,20 +67,36 @@ export function LoginPage() {
 
           <form onSubmit={submit} className="space-y-4">
             {tab === 'student' && (
-              <Field
-                label="Nomor Induk Mahasiswa (NIM)"
-                icon={<IdCard className="h-4 w-4" />}
-              >
-                <input
-                  value={nim}
-                  onChange={(e) => setNim(e.target.value)}
-                  placeholder="contoh: 19261409"
-                  inputMode="numeric"
-                  autoComplete="username"
-                  className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                />
-              </Field>
-            )}
+                          <>
+                            <Field
+                              label="Nomor Induk Mahasiswa (NIM)"
+                              icon={<IdCard className="h-4 w-4" />}
+                            >
+                              <input
+                                value={nim}
+                                onChange={(e) => setNim(e.target.value)}
+                                placeholder="contoh: 19261409"
+                                inputMode="numeric"
+                                autoComplete="username"
+                                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                              />
+                            </Field>
+                            <Field
+                              label="PIN (4 digit terakhir NIM)"
+                              icon={<KeyRound className="h-4 w-4" />}
+                            >
+                              <input
+                                type="password"
+                                value={studentPin}
+                                onChange={(e) => setStudentPin(e.target.value)}
+                                placeholder="contoh: 3409"
+                                inputMode="numeric"
+                                autoComplete="current-password"
+                                className="h-11 w-full rounded-xl border border-black/[0.1] bg-white px-3 pl-9 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                              />
+                            </Field>
+                          </>
+                        )}
 
             {tab === 'admin' && (
               <>
