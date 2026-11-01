@@ -239,7 +239,7 @@ export function CrudPage({
                   style={{ animationDelay: `${Math.min(i, 20) * 20}ms` }}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-ink">
+                    <p className="line-clamp-2 text-sm font-semibold leading-snug text-ink">
                       {columns[0]?.value(row) ?? '—'}
                     </p>
                     {columns.slice(1).map((c, j) => {
