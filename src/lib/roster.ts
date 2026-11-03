@@ -9,7 +9,7 @@ export const ROSTER: RosterStudent[] = [
   { nim: '19261199', name: 'Muhamad Nabil' },
   { nim: '19261338', name: 'Ruth Sahanaya' },
   { nim: '19261114', name: 'Adistia Yunita Putri' },
-  { nim: '192611754', name: 'Rani Adila' },
+  { nim: '19261174', name: 'Rani Adila' },
   { nim: '19261366', name: 'Lusihuan Angela' },
   { nim: '19261521', name: 'Fakhri Adis Nabil' },
   { nim: '19261508', name: 'Delciya Rustianti' },

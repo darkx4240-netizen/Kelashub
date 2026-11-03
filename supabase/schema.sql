@@ -62,6 +62,15 @@ create table if not exists public.activity (
   created_at timestamptz default now()
 );
 
+create table if not exists public.pageviews (
+  id uuid primary key default gen_random_uuid(),
+  path text,
+  referer text,
+  user_agent text,
+  visitor text,
+  created_at timestamptz default now()
+);
+
 create table if not exists public.discussions (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -91,6 +100,7 @@ alter table public.materials enable row level security;
 alter table public.announcements enable row level security;
 alter table public.members enable row level security;
 alter table public.activity enable row level security;
+alter table public.pageviews enable row level security;
 alter table public.discussions enable row level security;
 alter table public.replies enable row level security;
 
@@ -104,7 +114,7 @@ alter table public.replies enable row level security;
 do $$
 declare t text;
 begin
-  foreach t in array array['schedules','tasks','materials','announcements','members','activity','discussions','replies']
+  foreach t in array array['schedules','tasks','materials','announcements','members','activity','discussions','replies','pageviews']
   loop
     execute format('drop policy if exists "baca" on public.%I', t);
     execute format('drop policy if exists "tulis" on public.%I', t);

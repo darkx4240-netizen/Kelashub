@@ -162,7 +162,7 @@ insert into public.replies (discussion_id, author, author_role, content) values
 insert into public.members (nim, name, status) values ('19261199', 'Muhamad Nabil', 'aktif');
 insert into public.members (nim, name, status) values ('19261338', 'Ruth Sahanaya', 'aktif');
 insert into public.members (nim, name, status) values ('19261114', 'Adistia Yunita Putri', 'aktif');
-insert into public.members (nim, name, status) values ('192611754', 'Rani Adila', 'aktif');
+insert into public.members (nim, name, status) values ('19261174', 'Rani Adila', 'aktif');
 insert into public.members (nim, name, status) values ('19261366', 'Lusihuan Angela', 'aktif');
 insert into public.members (nim, name, status) values ('19261521', 'Fakhri Adis Nabil', 'aktif');
 insert into public.members (nim, name, status) values ('19261508', 'Delciya Rustianti', 'aktif');

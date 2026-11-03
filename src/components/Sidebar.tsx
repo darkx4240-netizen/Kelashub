@@ -9,6 +9,7 @@ import {
   GraduationCap,
   MessagesSquare,
   MessageCircle,
+  BarChart3,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '../lib/auth'
@@ -30,6 +31,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'announcements', label: 'Pengumuman', icon: Megaphone },
   { id: 'members', label: 'Anggota Kelas', icon: Users },
   { id: 'forum', label: 'Forum Diskusi', icon: MessagesSquare },
+  { id: 'analytics', label: 'Statistik Kunjungan', icon: BarChart3, adminOnly: true },
   { id: 'settings', label: 'Pengaturan', icon: Settings },
   ]
 

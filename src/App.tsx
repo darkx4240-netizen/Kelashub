@@ -18,6 +18,8 @@ import {
   AnnouncementsPage,
 } from './pages/ContentPages'
 import { isSupabaseConfigured } from './lib/data'
+import { trackPageview } from './lib/analytics'
+import { AnalyticsPage } from './pages/AnalyticsPage'
 
 const PAGE_TITLES: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -26,9 +28,10 @@ const PAGE_TITLES: Record<string, string> = {
   materials: 'Materi',
   announcements: 'Pengumuman',
   members: 'Anggota Kelas',
-    forum: 'Forum Diskusi',
-    settings: 'Pengaturan',
-  }
+  forum: 'Forum Diskusi',
+  analytics: 'Statistik Kunjungan',
+  settings: 'Pengaturan',
+}
 
 function useTables() {
   const schedules = useTable('schedules', '*', { column: 'created_at', ascending: true }, 20)
@@ -88,6 +91,11 @@ function AppShell() {
     setActive('dashboard')
     setAutoCreate(false)
   }, [session?.id])
+
+  // Catat kunjungan halaman setiap kali halaman aktif berganti.
+  useEffect(() => {
+    void trackPageview(`/${active}`)
+  }, [active, session?.id])
 
   // Navigasi + opsional buka form tambah (dipakai Quick Actions admin).
   function navigate(page: string, autoOpenCreate = false) {
@@ -190,6 +198,9 @@ function PageView({
     return (
       <MembersPage role={role} live={live} members={tables.members} refresh={refreshers.members} />
     )
+  }
+  if (active === 'analytics') {
+    return <AnalyticsPage />
   }
   if (active === 'forum') {
     return (
