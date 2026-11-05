@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { ROSTER } from './roster'
+import { isBlocked } from './access'
 
 export type Role = 'admin' | 'student'
 
@@ -168,10 +169,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const nim = nimInput.trim()
       const pin = pinInput.trim()
       const match = ROSTER.find((s) => s.nim === nim)
-      if (!match) {
-        return { ok: false, error: 'NIM tidak ditemukan di daftar kelas.' }
-      }
-      if (!pin) {
+            if (!match) {
+              return { ok: false, error: 'NIM tidak ditemukan di daftar kelas.' }
+            }
+            // Blokir login bila admin mematikan izin login mahasiswa ini.
+            if (isBlocked(nim)) {
+              return { ok: false, error: 'Login ditolak — izin login kamu dinonaktifkan oleh admin.' }
+            }
+            if (!pin) {
         return { ok: false, error: 'PIN wajib diisi.' }
       }
       const pins = readStudentPins()
